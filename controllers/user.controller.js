@@ -1,19 +1,22 @@
-const db = require("../models");
+import db from "../models/index.js";
 // const S3 = require("aws-sdk/clients/s3");
-const JWT = require("jsonwebtoken");
-const bcrypt = require('bcrypt');
-const multer = require("multer");
-const path = require("path");
+import JWT  from "jsonwebtoken";
+import bcrypt  from 'bcrypt';
+import multer from "multer";
+import path from "path";
+import { fetchOrCreateUserToken } from "./plaid.controller.js";
 // const fs = require("fs");
 // var Jimp = require("jimp");
-require("dotenv").config();
+// require("dotenv").config();
 const User = db.user;
 const Op = db.Sequelize.Op;
 
 
-const UserProfileFullResource = require("../resources/user/userprofilefullresource");
+import UserRole from "../models/userrole.js";
 
-exports.RegisterUser = async (req, res) => {
+import UserProfileFullResource from "../resources/user/userprofilefullresource.js";
+
+export const RegisterUser = async (req, res) => {
 
 
     // res.send({data: {text: "kanjar Students"}, message: "Chawal Students", status: true})
@@ -36,7 +39,7 @@ exports.RegisterUser = async (req, res) => {
             email: req.body.email,
             profile_image: '',
             password: req.body.password,
-
+            role: UserRole.RoleUser,
         };
         const salt = await bcrypt.genSalt(10);
         const hashed = await bcrypt.hash(req.body.password, salt);
@@ -51,7 +54,9 @@ exports.RegisterUser = async (req, res) => {
                 console.log("signed creating user")
                 try {
                     User.create(user).then(async data => {
-                        console.log("User created")
+                        console.log("User created ", data.id)
+                        let userToken = fetchOrCreateUserToken(data);
+                        console.log("User Token created in Register ", userToken)
                         let u = await UserProfileFullResource(data);
                         res.send({ status: true, message: "User registered", data: { user: user, token: token } })
                     }).catch(error => {
@@ -83,7 +88,7 @@ exports.RegisterUser = async (req, res) => {
 }
 
 
-exports.LoginUser = async (req, res) => {
+export const LoginUser = async (req, res) => {
     // res.send("Hello Login")
     console.log("Login " + req.body.email);
     const email = req.body.email;
@@ -124,7 +129,7 @@ exports.LoginUser = async (req, res) => {
 
 }
 
-exports.GetUserProfile = (req, res) => {
+export const GetUserProfile = (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             console.log("Auth data ", authData)

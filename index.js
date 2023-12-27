@@ -1,10 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-const multer = require("multer");
-const path = require("path");
-const userRouter = require("./routes/user.router");
+import express from "express";
+import cors from "cors";
+import multer from "multer";
+import path from "path";
+import userRouter from "./routes/user.router.js";
 
-require("dotenv").config();
+import plaidRouter from "./routes/plaid.router.js";
+import loanRouter from "./routes/loan.router.js";
+// import plaidRouter2 from "./rout"
+
+import { verifyJwtToken } from "./middleware/jwtmiddleware.js";
+
+import dotenv from 'dotenv'
+dotenv.config();
 
 
 const upload = multer();
@@ -29,7 +36,7 @@ app.use(express.json());
 
 
 
-const db = require("./models");
+import db from "./models/index.js";
 
 db.sequelize.authenticate().then(() => {
       console.log("Connected to the database!");
@@ -47,6 +54,9 @@ db.sequelize.sync({alter: true})//{alter: true}
 app.use("/api/users", uploadImg, userRouter);
 // app.use("/api/prompts", promptRouter);
 // app.use("/api/chats", chatRouter);
+
+app.use("/api/plaid", verifyJwtToken, plaidRouter);//verifyJwtToken
+app.use('/api/loans', verifyJwtToken, loanRouter);
 
 
 

@@ -1,6 +1,6 @@
-const db = require("../../models");
+import db from "../../models/index.js";
 
-module.exports = async (user, currentUser = null) =>{
+const UserProfileFullResource = async (user, currentUser = null) =>{
     if(!Array.isArray(user)){
         console.log("Not array")
         return await getUserData(user, currentUser);
@@ -41,3 +41,5 @@ async function  getUserData(user, currentUser = null) {
 
     return UserFullResource;
 }
+
+export default UserProfileFullResource;

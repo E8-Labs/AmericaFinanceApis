@@ -1,7 +1,7 @@
-const JWT = require("jsonwebtoken");
+import JWT from "jsonwebtoken";
 
 
-const verifyJwtToken = (req, response, next)=>{
+export const verifyJwtToken = (req, response, next)=>{
     const authHeaders = req.headers['authorization'];
     console.log(authHeaders);
     if(typeof authHeaders !== 'undefined'){
@@ -14,4 +14,4 @@ const verifyJwtToken = (req, response, next)=>{
     }
 }
 
-module.exports = {verifyJwtToken};
+// module.exports = {verifyJwtToken};

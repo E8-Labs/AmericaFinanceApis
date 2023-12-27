@@ -1,6 +1,6 @@
-const dbConfig = require("../config/db.config.js");
+import dbConfig from "../config/db.config.js";
 
-const Sequelize = require("sequelize");
+import  Sequelize from "sequelize";
 console.log("Connecting DB")
 console.log(dbConfig.MYSQL_DB_PASSWORD)
 const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
@@ -14,7 +14,35 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.user = require("./user.model.js")(sequelize, Sequelize);
+import UserModel from "./user.model.js";
+import PlaidTokensModel from "./plaidtokens.model.js";
+import TransferModel from "./transfer.model.js";
+// import LoanStatusModel from "./loanstatus.model.js";
+import LoanModel from "./loan.model.js";
+
+
+db.user = UserModel(sequelize, Sequelize);
+
+db.PlaidTokens = PlaidTokensModel(sequelize, Sequelize)
+db.PlaidTokens.belongsTo(db.user);
+db.user.hasMany(db.PlaidTokens, { onDelete: 'CASCADE', hooks: true });
+
+// db.LoanStatusModel = LoanStatusModel(sequelize, Sequelize);
+
+db.LoanModel = LoanModel(sequelize, Sequelize);
+db.LoanModel.belongsTo(db.user);
+db.user.hasMany(db.LoanModel, {onDelete: 'CASCADE', hooks: true});
+// db.LoanModel.hasOne(db.LoanStatusModel);
+// db.LoanStatusModel.belongsTo(db.LoanModel);
+
+
+
+db.Transfer = TransferModel(sequelize, Sequelize);
+db.Transfer.belongsTo(db.user);
+db.user.hasMany(db.Transfer, { onDelete: 'CASCADE', hooks: true });
+db.Transfer.belongsTo(db.LoanModel);
+db.LoanModel.hasOne(db.Transfer);
+
 // db.category = require("./category/category.model.js")(sequelize, Sequelize);
 // db.subcategory = require("./category/subcategory.model.js")(sequelize, Sequelize, db.category);
 // db.prompt = require("./prompt.model.js")(sequelize, Sequelize, db.user)
@@ -48,4 +76,4 @@ db.user = require("./user.model.js")(sequelize, Sequelize);
 // db.promptcomment = require("./promptcomment.model.js")(sequelize, Sequelize, db.prompt, db.user)
 
 // db.following = require("./following.js")(sequelize, Sequelize, db.user)
-module.exports = db;
+export default db;

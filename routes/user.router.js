@@ -1,12 +1,12 @@
-const express = require("express");
-const Router = express.Router();
-const {verifyJwtToken} = require("../middleware/jwtmiddleware");
-const {RegisterUser, LoginUser} = require("../controllers/user.controller");
+import express from "express";
+const plaidRouter = express.Router();
+import {verifyJwtToken}  from "../middleware/jwtmiddleware.js";
+import {RegisterUser, LoginUser} from "../controllers/user.controller.js";
 
 
 
-Router.post("/register", RegisterUser);
-Router.post("/login", LoginUser);
+plaidRouter.post("/register", RegisterUser);
+plaidRouter.post("/login", LoginUser);
 
 
-module.exports = Router;
+export default plaidRouter;
