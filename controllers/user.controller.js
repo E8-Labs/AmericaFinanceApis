@@ -110,7 +110,7 @@ export const LoginUser = async (req, res) => {
         bcrypt.compare(password, user.password, async function (err, result) {
             // result == true
             if (result) {
-                JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: "365 d" }, async (error, token) => {
+                JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, async (error, token) => {
                     if (error) {
 
                     }
@@ -139,7 +139,8 @@ export const GetUserProfile = (req, res) => {
             }
             const user = await User.findByPk(userid);
             if (user) {
-                res.send({ status: true, message: "Profile ", data: await UserLiteResource(user, authData.user) })
+                let u = await UserProfileFullResource(user);
+                res.send({ status: true, message: "Profile ", data: u })
             }
             else {
                 res.send({ status: false, message: "No Profile found", data: null })

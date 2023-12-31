@@ -1,4 +1,5 @@
 import db from "../../models/index.js";
+import PlaidTokenTypes from "../../models/plaidtokentypes.js";
 
 const UserProfileFullResource = async (user, currentUser = null) =>{
     if(!Array.isArray(user)){
@@ -26,7 +27,10 @@ async function  getUserData(user, currentUser = null) {
     //       followed: user.id
     //     }
     //   });
-
+    let token = await db.PlaidTokens.findOne({where: {
+        UserId: user.id,
+        plaid_token_type: PlaidTokenTypes.TokenAuth
+    }});
    
     const UserFullResource = {
         id: user.id,
@@ -35,6 +39,10 @@ async function  getUserData(user, currentUser = null) {
         middlename: user.middlename,
         profile_image: user.profile_image,
         email: user.email,
+        bank_connected: token ? true : false,
+        houses_connected: false,
+        identity_connected: false,
+        role: user.role,
 
     }
 

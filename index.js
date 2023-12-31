@@ -6,6 +6,7 @@ import userRouter from "./routes/user.router.js";
 
 import plaidRouter from "./routes/plaid.router.js";
 import loanRouter from "./routes/loan.router.js";
+import houseRouter from "./routes/hosue.router.js";
 // import plaidRouter2 from "./rout"
 
 import { verifyJwtToken } from "./middleware/jwtmiddleware.js";
@@ -47,7 +48,7 @@ db.sequelize.authenticate().then(() => {
     });
 
 // sync
-db.sequelize.sync({alter: true})//{alter: true}
+db.sequelize.sync({alter: false})//{alter: true}
 
 
 
@@ -57,6 +58,7 @@ app.use("/api/users", uploadImg, userRouter);
 
 app.use("/api/plaid", verifyJwtToken, plaidRouter);//verifyJwtToken
 app.use('/api/loans', verifyJwtToken, loanRouter);
+app.use("/api/houses", verifyJwtToken, houseRouter);
 
 
 

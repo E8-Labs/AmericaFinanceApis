@@ -44,7 +44,7 @@ const CreateLinkToken = async (req, res) => {
             let userid = authData.user.id;
             const clientUserId = userid;
             console.log("Client User Id ", clientUserId)
-            const request = {
+            let request = {
                 user: {
                     // This should correspond to a unique id for the current user.
                     client_user_id: `${clientUserId}`,
@@ -59,11 +59,19 @@ const CreateLinkToken = async (req, res) => {
                 products: products,//['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity'],//, 'income_verification'
                 // products: ['income_verification'],
                 // products: ['identity_verification'],
+                android_package_name: "com.americafinance",
                 language: 'en',
                 // webhook: 'https://webhook.example.com',
-                redirect_uri: 'https://cdn-testing.plaid.com/link/v2/stable/sandbox-oauth-a2a-react-native-redirect.html',
+                // redirect_uri: 'https://cdn-testing.plaid.com/link/v2/stable/sandbox-oauth-a2a-react-native-redirect.html',
                 country_codes: ['US'],
             };
+
+            if(req.body.platform == "android"){
+                request.android_package_name = "com.americafinance"
+            }
+            else{
+                request.redirect_uri = 'https://cdn-testing.plaid.com/link/v2/stable/sandbox-oauth-a2a-react-native-redirect.html';
+            }
             try {
                 const createTokenResponse = await plaidClient.linkTokenCreate(request);
                 res.send({data: createTokenResponse.data, status: true, message: "Token obtained", products: products, token_type: tokenType});

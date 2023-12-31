@@ -20,6 +20,8 @@ import TransferModel from "./transfer.model.js";
 // import LoanStatusModel from "./loanstatus.model.js";
 import LoanModel from "./loan.model.js";
 
+import HouseModel from "./house.model.js";
+
 
 db.user = UserModel(sequelize, Sequelize);
 
@@ -42,6 +44,11 @@ db.Transfer.belongsTo(db.user);
 db.user.hasMany(db.Transfer, { onDelete: 'CASCADE', hooks: true });
 db.Transfer.belongsTo(db.LoanModel);
 db.LoanModel.hasOne(db.Transfer);
+
+
+db.HouseModel = HouseModel(sequelize, Sequelize);
+db.HouseModel.belongsTo(db.user);
+db.user.hasMany(db.HouseModel, {onDelete: "CASCADE", hooks: true})
 
 // db.category = require("./category/category.model.js")(sequelize, Sequelize);
 // db.subcategory = require("./category/subcategory.model.js")(sequelize, Sequelize, db.category);

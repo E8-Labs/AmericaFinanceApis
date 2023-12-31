@@ -26,6 +26,14 @@ const UserModel = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         default: ''
       },
+      city: {
+        type: Sequelize.STRING,
+        default: ''
+      },
+      state: {
+        type: Sequelize.STRING,
+        default: ''
+      },
       fcm_token:{
         type:Sequelize.STRING,
         default: ''
