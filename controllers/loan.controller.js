@@ -42,20 +42,28 @@ const GetUserLoansList = async(req, res)=>{
 
 
 const GetAdminLoansList = async(req, res)=>{
-    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
-        if (authData ) {
-            let offset = req.query.offset;
+    console.log("Admin api loans called")
+    let offset = req.query.offset;
             let loans = await db.LoanModel.findAll()
             let list = null;
             if(loans){
                 list = await  UserLoanFullResource(loans);
             }
             res.send({ status: true, message: "Loans", data: list })
-        }
-        else{
-            res.send({ status: false, message: "Unauthenticated user", data: null })
-        }
-    })
+    // JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+    //     if (authData ) {
+    //         let offset = req.query.offset;
+    //         let loans = await db.LoanModel.findAll()
+    //         let list = null;
+    //         if(loans){
+    //             list = await  UserLoanFullResource(loans);
+    //         }
+    //         res.send({ status: true, message: "Loans", data: list })
+    //     }
+    //     else{
+    //         res.send({ status: false, message: "Unauthenticated user", data: null })
+    //     }
+    // })
 }
 
 
@@ -182,4 +190,4 @@ const RejectLoan = async(req, res)=>{
 //         res.send({ status: false, message: "Unauthenticated user", data: null })
 //     }
 // })
-export {GetUserLoansList, RequestLoan, ApproveLoan, RejectLoan}
+export {GetUserLoansList, GetAdminLoansList, RequestLoan, ApproveLoan, RejectLoan}

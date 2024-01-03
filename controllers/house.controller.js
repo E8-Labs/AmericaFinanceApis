@@ -15,6 +15,7 @@ const Op = db.Sequelize.Op;
 import UserRole from "../models/userrole.js";
 
 import UserProfileFullResource from "../resources/user/userprofilefullresource.js";
+import HouseFullResource from "../resources/user/house.resource.js";
 
 
 
@@ -83,7 +84,7 @@ const GetHouseList = async(req, res)=>{
             }})
 
             if (houses){
-                res.send({ status: true, message: "Houses ", data: houses })
+                res.send({ status: true, message: "Houses ", data: await HouseFullResource(houses) })
             }
             else{
                 res.send({ status: true, message: "Houses list empty", data: null })

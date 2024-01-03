@@ -31,6 +31,12 @@ async function  getUserData(user, currentUser = null) {
         UserId: user.id,
         plaid_token_type: PlaidTokenTypes.TokenAuth
     }});
+
+    let houses = await db.HouseModel.findOne({where: {
+        UserId: user.id,
+    }});
+
+    
    
     const UserFullResource = {
         id: user.id,
@@ -40,7 +46,7 @@ async function  getUserData(user, currentUser = null) {
         profile_image: user.profile_image,
         email: user.email,
         bank_connected: token ? true : false,
-        houses_connected: false,
+        houses_connected: houses ? true : false,
         identity_connected: false,
         role: user.role,
 
