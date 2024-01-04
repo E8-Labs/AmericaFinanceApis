@@ -32,34 +32,53 @@ export const RegisterUser = async (req, res) => {
     else {
         // console.log("Hello bro")
         // res.send("Hello")
-        var user = {
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            middlename: req.body.middlename,
-            email: req.body.email,
-            profile_image: '',
-            password: req.body.password,
-            role: UserRole.RoleUser,
-        };
-        const salt = await bcrypt.genSalt(10);
-        const hashed = await bcrypt.hash(req.body.password, salt);
-        user.password = hashed;
-
-        JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, (err, token) => {
-            if (err) {
-                console.log("Error signing")
-                res.send({ status: false, message: "Error Token " + err, data: null });
-            }
-            else {
-                console.log("signed creating user")
-                try {
-                    User.create(user).then(async data => {
-                        console.log("User created ", data.id)
-                        let userToken = fetchOrCreateUserToken(data);
-                        console.log("User Token created in Register ", userToken)
-                        let u = await UserProfileFullResource(data);
-                        res.send({ status: true, message: "User registered", data: { user: user, token: token } })
-                    }).catch(error => {
+        if (!req.body.firstname){
+            res.send({ status: false, message: "Firstname is required " , data: null });
+        }
+        else if (!req.body.lastname){
+            res.send({ status: false, message: "Lastname is required " , data: null });
+        }
+        else{
+            var user = {
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                middlename: req.body.middlename,
+                email: req.body.email,
+                profile_image: '',
+                password: req.body.password,
+                role: UserRole.RoleUser,
+            };
+            const salt = await bcrypt.genSalt(10);
+            const hashed = await bcrypt.hash(req.body.password, salt);
+            user.password = hashed;
+    
+            JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, (err, token) => {
+                if (err) {
+                    console.log("Error signing")
+                    res.send({ status: false, message: "Error Token " + err, data: null });
+                }
+                else {
+                    console.log("signed creating user")
+                    try {
+                        User.create(user).then(async data => {
+                            console.log("User created ", data.id)
+                            let userToken = fetchOrCreateUserToken(data);
+                            console.log("User Token created in Register ", userToken)
+                            let u = await UserProfileFullResource(data);
+                            res.send({ status: true, message: "User registered", data: { user: user, token: token } })
+                        }).catch(error => {
+                            console.log("User not created")
+                            console.log(error)
+                            res.send({
+                                message:
+                                    err.message || "Some error occurred while creating the user.",
+                                status: false,
+                                data: null
+                            });
+                        })
+                    }
+                    catch (error) {
+                        console.log("Exception ", error)
                         console.log("User not created")
                         console.log(error)
                         res.send({
@@ -68,21 +87,11 @@ export const RegisterUser = async (req, res) => {
                             status: false,
                             data: null
                         });
-                    })
+                    }
                 }
-                catch (error) {
-                    console.log("Exception ", error)
-                    console.log("User not created")
-                    console.log(error)
-                    res.send({
-                        message:
-                            err.message || "Some error occurred while creating the user.",
-                        status: false,
-                        data: null
-                    });
-                }
-            }
-        })
+            })
+        }
+        
     }
 
 }
