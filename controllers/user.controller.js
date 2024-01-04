@@ -39,7 +39,7 @@ export const RegisterUser = async (req, res) => {
             res.send({ status: false, message: "Lastname is required " , data: null });
         }
         else{
-            var user = {
+            var userData = {
                 firstname: req.body.firstname,
                 lastname: req.body.lastname,
                 middlename: req.body.middlename,
@@ -50,14 +50,15 @@ export const RegisterUser = async (req, res) => {
             };
             const salt = await bcrypt.genSalt(10);
             const hashed = await bcrypt.hash(req.body.password, salt);
-            user.password = hashed;
+            userData.password = hashed;
 
             try {
-                User.create(user).then(async data => {
+                User.create(userData).then(async data => {
                     console.log("User created ", data.id)
                     let userToken = fetchOrCreateUserToken(data);
                     console.log("User Token created in Register ", userToken)
-                    JWT.sign({ data }, process.env.SecretJwtKey, { expiresIn: '31536000' }, async(err, token) => {
+                    let user = data
+                    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, async(err, token) => {
                         if (err) {
                             console.log("Error signing")
                             res.send({ status: false, message: "Error Token " + err, data: null });
@@ -65,7 +66,7 @@ export const RegisterUser = async (req, res) => {
                         else {
                             console.log("signed creating user")
                             let u = await UserProfileFullResource(data);
-                            res.send({ status: true, message: "User registered", data: { user: user, token: token } })
+                            res.send({ status: true, message: "User registered", data: { user: u, token: token } })
                             
                         }
                     })
