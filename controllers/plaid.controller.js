@@ -16,6 +16,126 @@ const configuration = new Configuration({
 const plaidClient = new PlaidApi(configuration);
 
 
+
+//Utility Functions Used By Other Controllers
+const GetAccountsListUtility = async(user) => {
+    let plaidToken = await db.PlaidTokens.findOne({where:{
+        UserId: user.id,
+        plaid_token_type: PlaidTokenTypes.TokenAuth
+    }});
+    if(plaidToken){
+        try{
+            const request = {
+                access_token: plaidToken.plaid_access_token
+            }
+            const response = await plaidClient.accountsBalanceGet(request);
+            const accounts = response.data.accounts;
+            return accounts;
+        }
+        catch(error){
+            return null
+        }
+    }
+    else{
+        return null
+    }
+}
+
+
+const GetTransferAuthorization = async(user, amount, account_id, charge_type) => {
+    console.log("Request Auth For ", (Math.round(amount * 100) / 100).toFixed(2))
+    let plaidToken = await db.PlaidTokens.findOne({where:{
+        UserId: user.id,
+        plaid_token_type: PlaidTokenTypes.TokenAuth
+    }});
+    console.log(`Using ${plaidToken.plaid_access_token} for authorization ${amount}`)
+    if(plaidToken){
+        //make the authorization request
+        const request = {
+            access_token: plaidToken.plaid_access_token,
+            account_id: account_id,//'3gE5gnRzNyfXpBK5wEEKcymJ5albGVUqg77gr',
+            type: charge_type, // credit or debit
+            network: 'ach',
+            amount: `${(Math.round(amount * 100) / 100).toFixed(2)}`,
+            ach_class: 'ppd',
+            user: {
+              legal_name:  `${user.firstname} ${user.middlename} ${user.lastname}`,
+            },
+          };
+          try {
+            const response = await plaidClient.transferAuthorizationCreate(request);
+            const authorizationId = response.data.authorization.id;
+            return response.data.authorization;
+            // res.send({ status: true, message: "Authorization", data: response.data })
+          } catch (error) {
+            // handle error
+            console.log(error)
+            return null
+            // res.send({ status: false, message: error.message, data: null, errors: error })
+          }
+    }
+    else{
+        res.send({ status: false, message: "User not authorized to make transfers ", data: null })
+    }
+}
+
+
+const MakeTransferUtility = async(user, loan, account_id, authorization_id) => {
+    let am = (Math.round(loan.amount_requested * 100) / 100).toFixed(2)
+    let plaidToken = await db.PlaidTokens.findOne({where:{
+        UserId: user.id,
+        plaid_token_type: PlaidTokenTypes.TokenAuth
+    }});
+    console.log(`Using ${plaidToken.plaid_access_token} for authorization ${am}`)
+    if(plaidToken){
+        try {
+            const request = {
+                access_token: plaidToken.plaid_access_token,
+                account_id: account_id,
+                description: 'payment for loan ' + loan.id + " amount " + am,
+                authorization_id: authorization_id,
+              };
+              try {
+                const response = await plaidClient.transferCreate(request);
+                const transfer = response.data.transfer;
+                const request_id = response.data.request_id;
+                let createdTransfer = await db.Transfer.create({
+                    request_id: request_id,
+                    UserId: user.id,
+                    account_id: transfer.account_id,
+                    amount: transfer.amount,
+                    authorization_id: transfer.authorization_id,
+                    created: transfer.created,
+                    description: transfer.description,
+                    failure_reason: transfer.failure_reason,
+                    funding_account_id: transfer.funding_account_id,
+                    transfer_id: transfer.id,
+                    status: transfer.status,
+                    sweep_status: transfer.sweep_status,
+                    type: transfer.type,
+                    legal_name: transfer.user.legal_name,
+                    phone_number: transfer.user.phone_number,
+                    email_address: transfer.user.email_address,
+                })
+                return createdTransfer;
+              } catch (error) {
+                // handle error
+                console.log(error)
+                return null
+                // res.send({ status: false, message: error.message, data: null, errors: error })
+              }
+          } catch (error) {
+            return null
+            // res.send({ status: false, message: error, data: null })
+          }
+    }
+    else{
+        return null
+        // res.send({ status: false, message: "User not authorized to make transfers ", data: null })
+    }
+}
+
+
 const CreateLinkToken = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
@@ -175,19 +295,19 @@ const ExchangePublicToken = async(req, res) => {
 }
 
 
+
+ 
 const GetUserBalance = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
             const user = await db.user.findByPk(userid);
             console.log("Getting user details with access token ", user)
-            const request = {
-                access_token: user.plaid_access_token
-            }
+            
 
             try{
-                const response = await plaidClient.accountsBalanceGet(request);
-                const accounts = response.data.accounts;
+                
+                const accounts = await GetAccountsListUtility(user);
                 res.send({ message: "Accounts with balance", status: true, data: accounts});
             }
             catch(err){
@@ -449,4 +569,4 @@ const fetchOrCreateUserToken = async (userRecord) => {
 // );
 
 export { CreateLinkToken, ExchangePublicToken, GetPayrolIncome, GetLiabilities, fetchOrCreateUserToken, GetUserBalance,
-    CreateTransferAuthorizeRequest, CreateTransfer}
+    CreateTransferAuthorizeRequest, CreateTransfer, GetAccountsListUtility, GetTransferAuthorization, MakeTransferUtility}

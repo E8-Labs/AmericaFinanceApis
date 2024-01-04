@@ -12,6 +12,8 @@ import UserRole from "../models/userrole.js";
 import { addDays, currentDate, dateToString } from "../config/utility.js";
 
 import { fetchOrCreateUserToken } from "./plaid.controller.js";
+
+import { GetAccountsListUtility, GetTransferAuthorization, MakeTransferUtility } from "./plaid.controller.js";
 // const fs = require("fs");
 // var Jimp = require("jimp");
 // require("dotenv").config();
@@ -130,7 +132,7 @@ export const GetLoanCalculations = async (req, res) => {
             let userid = authData.user.id;
             let user = await db.user.findByPk(userid);
             let loanTerm = 14; //days
-            if(user){
+            if (user) {
 
                 var today = currentDate()
                 var loan_due_date = addDays(today, 14)
@@ -143,7 +145,7 @@ export const GetLoanCalculations = async (req, res) => {
                 console.log("Loan amount is ", amount);
                 console.log("User state is ", user.state);
                 let financeFee = 17.5; // percent for AL and MS
-                if(user.state == "CA" || user.state == "California"){
+                if (user.state == "CA" || user.state == "California") {
                     financeFee = 15.0; // percent
                 }
 
@@ -151,15 +153,17 @@ export const GetLoanCalculations = async (req, res) => {
 
                 let apr = (financeFeeAmount / amount) / loanTerm * 365 * 100;
 
-                let data = {apr: apr, principal_amount: amount, finance_fee: financeFeeAmount, 
-                    finance_fee_percentage: financeFee, duration: loanTerm, 
-                    total_due: amount + financeFeeAmount, user: user, 
-                    current_date: todayString, estimated_due_date: loan_due_date_string}
+                let data = {
+                    apr: apr, principal_amount: amount, finance_fee: financeFeeAmount,
+                    finance_fee_percentage: financeFee, duration: loanTerm,
+                    total_due: amount + financeFeeAmount, user: user,
+                    current_date: todayString, estimated_due_date: loan_due_date_string
+                }
 
                 res.send({ status: true, message: "Loan details", data: data })
-                    
+
             }
-            else{
+            else {
                 res.send({ status: false, message: "No such user", data: null })
             }
         }
@@ -177,25 +181,74 @@ const ApproveLoan = async (req, res) => {
             let userid = authData.user.id;
             let user = await db.user.findByPk(userid);
 
-            //only admin can do this
+            let loan = await db.LoanModel.findByPk(loan_id)
+            if (loan) {
+                let borrower = await db.user.findByPk(loan.UserId)
+                //only admin can do this
 
-            if (user.role === UserRole.RoleAdmin) {
-                //send the payment to the user
-                // once payment is sent change the loan status to approved
-                let loan = await db.LoanModel.findByPk(loan_id)
-                loan.loan_status = LoanStatus.StatusApproved;
-                let saved = await loan.save();
-                if (saved) {
-                    res.send({ status: true, message: "Loan approved", data: loan })
+                if (user.role === UserRole.RoleAdmin) {
+                    //send the payment to the user
+                    // once payment is sent change the loan status to approved
+
+                    /*
+                        Steps
+                        1 - Get User Accounts List
+                        2 - If No Accounts, Abort & Send Message
+                        3 - Select First account id
+                        4 - Create Transfer Authorization
+                        5 - Make Transfer
+                        6 - Approve Loan
+                    */
+
+                    //Step 1 
+                    const accounts = await GetAccountsListUtility(borrower);
+                    //Step 2
+                    if (accounts && accounts.length > 0) {
+                        //Step 3
+                        let account_id = accounts[4].account_id;
+                        console.log("Charge account ", account_id);
+
+                        //Step 4
+                        let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
+                        console.log("Transfer Authorization created ", tAuth);
+                        // res.send({ Auth: tAuth });
+                        let authID = tAuth.id;
+                        if (tAuth.decision == "approved") {
+                            //Step 5
+                            let transfer = await MakeTransferUtility(borrower, loan, account_id, authID);
+                            // res.send({Transfer:  transfer});
+                            // loan.loan_status = LoanStatus.StatusApproved;
+
+
+                            // let saved = await loan.save();
+                            // if (saved) {
+                            //     res.send({ status: true, message: "Loan approved", data: loan })
+                            // }
+                            // else {
+                            //     res.send({ status: false, message: "Loan not approved", data: null })
+                            // }
+                        }
+                        else {
+                            let message = tAuth.decision_rationale.description;
+                            res.send({ status: false, message: message, data: tAuth })
+                        }
+
+                    }
+                    else {
+                        //Step 2
+                        res.send({ status: false, message: "No accounts connected", data: borrower })
+                    }
+
+
                 }
                 else {
-                    res.send({ status: false, message: "Loan not approved", data: null })
+                    res.send({ status: false, message: "You're not authorized to perform this request", data: null })
                 }
-
             }
             else {
-                res.send({ status: false, message: "You're not authorized to perform this request", data: null })
+                res.send({ status: false, message: "No such loan", data: null })
             }
+
         }
         else {
             res.send({ status: false, message: "Unauthenticated user", data: null })
