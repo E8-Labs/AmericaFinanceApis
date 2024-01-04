@@ -132,6 +132,15 @@ const ApproveLoan = async(req, res)=>{
             if(user.role === UserRole.RoleAdmin){
                 //send the payment to the user
                 // once payment is sent change the loan status to approved
+                let loan = await db.LoanModel.findByPk(loan_id)
+                loan.loan_status = LoanStatus.StatusApproved;
+                let saved = await loan.save();
+                if (saved){
+                    res.send({ status: true, message: "Loan approved", data: loan })
+                }
+                else{
+                    res.send({ status: false, message: "Loan not approved", data: null })
+                }
 
             }
             else{

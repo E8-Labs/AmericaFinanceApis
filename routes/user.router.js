@@ -1,12 +1,13 @@
 import express from "express";
-const plaidRouter = express.Router();
+const userRouter = express.Router();
 import {verifyJwtToken}  from "../middleware/jwtmiddleware.js";
-import {RegisterUser, LoginUser, GetUserProfile} from "../controllers/user.controller.js";
+import {RegisterUser, LoginUser, GetUserProfile, UpdateProfile} from "../controllers/user.controller.js";
 
 
 
-plaidRouter.post("/register", RegisterUser);
-plaidRouter.post("/login", LoginUser);
-plaidRouter.post("/get_profile", verifyJwtToken, GetUserProfile);
+userRouter.post("/register", RegisterUser);
+userRouter.post("/login", LoginUser);
+userRouter.post("/get_profile", verifyJwtToken, GetUserProfile);
+userRouter.post("/update_profile", verifyJwtToken, UpdateProfile);
 
-export default plaidRouter;
+export default userRouter;

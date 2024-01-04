@@ -144,6 +144,30 @@ export const LoginUser = async (req, res) => {
 
 }
 
+
+export const UpdateProfile = async(req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            console.log("Auth data ", authData)
+            let userid = authData.user.id;
+            
+            const user = await User.findByPk(userid);
+            
+            let state = req.body.state;
+            user.state = state;
+            const saved = await user.save();
+
+            let u = await UserProfileFullResource(user)
+            res.send({ status: false, message: "User updated", data: u })
+
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
+
+
 export const GetUserProfile = (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
