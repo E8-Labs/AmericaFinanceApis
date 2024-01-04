@@ -110,7 +110,7 @@ const RequestLoan = async(req, res) => {
                 }
             }
             else{
-                res.send({ status: false, message: "user not found", data: null })
+                res.send({ status: false, message: "user not found", data: authData })
             }
         }
         else{
