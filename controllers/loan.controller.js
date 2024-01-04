@@ -211,7 +211,7 @@ const RejectLoan = async (req, res) => {
             let loan_id = req.body.loan_id;
             let userid = authData.user.id;
             let user = await db.user.findByPk(userid);
-
+            console.log("Loan id is ", loan_id);
             //only admin can do this
 
             if (user.role === UserRole.RoleAdmin) {
