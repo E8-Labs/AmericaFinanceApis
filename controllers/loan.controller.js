@@ -126,6 +126,7 @@ const RequestLoan = async (req, res) => {
 }
 
 
+
 export const GetLoanCalculations = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
