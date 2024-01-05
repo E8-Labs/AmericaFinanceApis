@@ -202,43 +202,43 @@ const ApproveLoan = async (req, res) => {
                     */
 
                     //Step 1 
-                    const accounts = await GetAccountsListUtility(borrower);
-                    //Step 2
-                    if (accounts && accounts.length > 0) {
-                        //Step 3
-                        let account_id = accounts[4].account_id;
-                        console.log("Charge account ", account_id);
+                    // const accounts = await GetAccountsListUtility(borrower);
+                    // //Step 2
+                    // if (accounts && accounts.length > 0) {
+                    //     //Step 3
+                    //     let account_id = accounts[4].account_id;
+                    //     console.log("Charge account ", account_id);
 
-                        //Step 4
-                        let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
-                        console.log("Transfer Authorization created ", tAuth);
-                        // res.send({ Auth: tAuth });
-                        let authID = tAuth.id;
-                        if (tAuth.decision == "approved") {
-                            //Step 5
-                            let transfer = await MakeTransferUtility(borrower, loan, account_id, authID);
-                            // res.send({Transfer:  transfer});
-                            // loan.loan_status = LoanStatus.StatusApproved;
+                    //     //Step 4
+                    //     let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
+                    //     console.log("Transfer Authorization created ", tAuth);
+                    //     // res.send({ Auth: tAuth });
+                    //     let authID = tAuth.id;
+                    //     if (tAuth.decision == "approved") {
+                    //         //Step 5
+                    //         let transfer = await MakeTransferUtility(borrower, loan, account_id, authID);
+                    //         // res.send({Transfer:  transfer});
+                            loan.loan_status = LoanStatus.StatusApproved;
 
 
-                            // let saved = await loan.save();
-                            // if (saved) {
-                            //     res.send({ status: true, message: "Loan approved", data: loan })
-                            // }
-                            // else {
-                            //     res.send({ status: false, message: "Loan not approved", data: null })
-                            // }
-                        }
-                        else {
-                            let message = tAuth.decision_rationale.description;
-                            res.send({ status: false, message: message, data: tAuth })
-                        }
+                            let saved = await loan.save();
+                            if (saved) {
+                                res.send({ status: true, message: "Loan approved", data: loan })
+                            }
+                            else {
+                                res.send({ status: false, message: "Loan not approved", data: null })
+                            }
+                    //     }
+                    //     else {
+                    //         let message = tAuth.decision_rationale.description;
+                    //         res.send({ status: false, message: message, data: tAuth })
+                    //     }
 
-                    }
-                    else {
-                        //Step 2
-                        res.send({ status: false, message: "No accounts connected", data: borrower })
-                    }
+                    // }
+                    // else {
+                    //     //Step 2
+                    //     res.send({ status: false, message: "No accounts connected", data: borrower })
+                    // }
 
 
                 }
