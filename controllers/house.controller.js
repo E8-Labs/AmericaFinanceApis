@@ -79,6 +79,9 @@ const GetHouseList = async(req, res)=>{
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
+            }
             let houses = await db.HouseModel.findAll({where:{
                 UserId: userid
             }})

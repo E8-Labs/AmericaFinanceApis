@@ -62,7 +62,7 @@ const GetAdminLoansList = async (req, res) => {
     //         let loans = await db.LoanModel.findAll()
     //         let list = null;
     //         if(loans){
-    //             list = await  UserLoanFullResource(loans);
+    //             list = await UserLoanFullResource(loans);
     //         }
     //         res.send({ status: true, message: "Loans", data: list })
     //     }
