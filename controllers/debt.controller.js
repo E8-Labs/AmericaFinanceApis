@@ -51,7 +51,7 @@ const AddDebt = async(req, res)=>{
                     console.log(error)
                     res.send({
                         message:
-                            err.message || "Some error occurred while adding the debt.",
+                            error.message || "Some error occurred while adding the debt.",
                         status: false,
                         data: null
                     });
@@ -63,7 +63,7 @@ const AddDebt = async(req, res)=>{
                 console.log(error)
                 res.send({
                     message:
-                        err.message || "Some error occurred while adding the debt.",
+                        error.message || "Some error occurred while adding the debt.",
                     status: false,
                     data: null
                 });
