@@ -58,7 +58,7 @@ export const RegisterUser = async (req, res) => {
                     let userToken = fetchOrCreateUserToken(data);
                     console.log("User Token created in Register ", userToken)
                     let user = data
-                    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, async(err, token) => {
+                    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async(err, token) => {
                         if (err) {
                             console.log("Error signing")
                             res.send({ status: false, message: "Error Token " + err, data: null });
@@ -125,7 +125,7 @@ export const LoginUser = async (req, res) => {
         bcrypt.compare(password, user.password, async function (err, result) {
             // result == true
             if (result) {
-                JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '31536000' }, async (error, token) => {
+                JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async (error, token) => {
                     if (error) {
 
                     }
