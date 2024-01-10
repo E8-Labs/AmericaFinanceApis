@@ -16,6 +16,7 @@ import UserRole from "../models/userrole.js";
 
 import UserProfileFullResource from "../resources/user/userprofilefullresource.js";
 import HouseFullResource from "../resources/user/house.resource.js";
+import UserDebtFullResource from "../resources/loan/debt.resource.js";
 
 
 
@@ -45,7 +46,7 @@ const AddDebt = async(req, res)=>{
                     // let userToken = fetchOrCreateUserToken(data);
                     // console.log("User Token created in Register ", userToken)
                     // let u = await UserProfileFullResource(data);
-                    res.send({ status: true, message: "Debt added", data: data })
+                    res.send({ status: true, message: "Debt added", data: await UserDebtFullResource(data) })
                 }).catch(error => {
                     console.log("Debt not created")
                     console.log(error)
@@ -88,7 +89,7 @@ const GetDebtList = async(req, res)=>{
             }})
 
             if (debts){
-                res.send({ status: true, message: "Debts list ", data: debts })
+                res.send({ status: true, message: "Debts list ", data: await UserDebtFullResource(debts) })
             }
             else{
                 res.send({ status: true, message: "debts list empty", data: null })
