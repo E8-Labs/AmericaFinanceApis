@@ -22,6 +22,9 @@ import LoanModel from "./loan.model.js";
 
 import HouseModel from "./house.model.js";
 import DebtModel from "./debt.model.js";
+import BankAccountModel from "./bankaccount.model.js";
+import MortgageLoanModel from "./mortgageloan.model.js";
+import StudentLoanModel from "./studentloan.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -55,6 +58,18 @@ db.user.hasMany(db.HouseModel, {onDelete: "CASCADE", hooks: true})
 db.DebtModel = DebtModel(sequelize, Sequelize);
 db.DebtModel.belongsTo(db.user)
 db.user.hasMany(db.DebtModel, {onDelete: 'CASCADE', hooks: true})
+
+db.BankAccountModel = BankAccountModel(sequelize, Sequelize);
+db.BankAccountModel.belongsTo(db.user)
+db.user.hasMany(db.BankAccountModel, {onDelete: 'CASCADE', hooks: true})
+
+db.MortgageLoanModel = MortgageLoanModel(sequelize, Sequelize);
+db.MortgageLoanModel.belongsTo(db.user)
+db.user.hasMany(db.MortgageLoanModel, {onDelete: 'CASCADE', hooks: true})
+
+db.StudentLoanModel = StudentLoanModel(sequelize, Sequelize);
+db.MortgageLoanModel.belongsTo(db.user)
+db.user.hasMany(db.StudentLoanModel, {onDelete: 'CASCADE', hooks: true})
 
 // db.category = require("./category/category.model.js")(sequelize, Sequelize);
 // db.subcategory = require("./category/subcategory.model.js")(sequelize, Sequelize, db.category);

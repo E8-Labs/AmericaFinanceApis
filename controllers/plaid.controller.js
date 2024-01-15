@@ -2,6 +2,8 @@ import  AccountsGetRequest, { Configuration, PlaidApi, PlaidEnvironments } from 
 import JWT from "jsonwebtoken";
 import db from "../models/index.js";
 import PlaidTokenTypes from '../models/plaidtokentypes.js';
+import UserBanksFullResource from '../resources/plaid/bank.resource.js';
+import BankAccountModel from '../models/bankaccount.model.js';
 
 const configuration = new Configuration({
     basePath: PlaidEnvironments.sandbox,
@@ -18,7 +20,7 @@ const plaidClient = new PlaidApi(configuration);
 
 
 //Utility Functions Used By Other Controllers
-const GetAccountsListUtility = async(user) => {
+const GetBalancesListUtility = async(user) => {
     let plaidToken = await db.PlaidTokens.findOne({where:{
         UserId: user.id,
         plaid_token_type: PlaidTokenTypes.TokenAuth
@@ -29,6 +31,30 @@ const GetAccountsListUtility = async(user) => {
                 access_token: plaidToken.plaid_access_token
             }
             const response = await plaidClient.accountsBalanceGet(request);
+            const accounts = response.data.accounts;
+            return accounts;
+        }
+        catch(error){
+            return null
+        }
+    }
+    else{
+        return null
+    }
+}
+
+//Utility Functions Used By Other Controllers
+const GetAccountsListUtility = async(user) => {
+    let plaidToken = await db.PlaidTokens.findOne({where:{
+        UserId: user.id,
+        plaid_token_type: PlaidTokenTypes.TokenAuth
+    }});
+    if(plaidToken){
+        try{
+            const request = {
+                access_token: plaidToken.plaid_access_token
+            }
+            const response = await plaidClient.accountsGet(request);
             const accounts = response.data.accounts;
             return accounts;
         }
@@ -301,26 +327,133 @@ const GetUserBalance = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
+
+            // if (typeof req.query.userid !== 'undefined') {
+            //     userid = req.query.userid;
+            // }
             const user = await db.user.findByPk(userid);
             console.log("Getting user details with access token ", user)
             
-
-            try{
+            // check if user has accounts in db
+            // let dbaccounts = await db.BankAccountModel.findAll({
+            //     where: {
+            //         UserId: userid
+            //     }
+            // })
+            // if(dbaccounts && dbaccounts.length > 0){
+            //     let list = await UserBanksFullResource(dbaccounts)
+            //     res.send({ message: "Accounts with balance from db", status: true, data: list});
+            // }
+            // else{
+                try{
                 
-                const accounts = await GetAccountsListUtility(user);
-                res.send({ message: "Accounts with balance", status: true, data: accounts});
+                    const accounts = await GetBalancesListUtility(user);
+                    res.send({ message: "Accounts with balance plaid", status: true, data: accounts});
+                    
+                }
+                catch(err){
+                    // console.log(err)
+                    res.send({data: {
+                        error_type: err.error_type,
+                        error_code: err.error_code,
+                        error_message: err.error_message,
+                        display_message: err.display_message,
+                        documentation_url: err.documentation_url,
+                        request_id: err.request_id,
+                    }, status: false, message: "Token error"});
+                }
+            // }
+            
+
+                
+        }
+        else{
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
+
+const GetUserAccounts = async (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userid = authData.user.id;
+
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
             }
-            catch(err){
-                // console.log(err)
-                res.send({data: {
-                    error_type: err.error_type,
-                    error_code: err.error_code,
-                    error_message: err.error_message,
-                    display_message: err.display_message,
-                    documentation_url: err.documentation_url,
-                    request_id: err.request_id,
-                }, status: false, message: "Token error"});
+            const user = await db.user.findByPk(userid);
+            console.log("Getting user details with access token ", user)
+            
+            // check if user has accounts in db
+            let dbaccounts = await db.BankAccountModel.findAll({
+                where: {
+                    UserId: userid
+                }
+            })
+            if(dbaccounts && dbaccounts.length > 0){
+                let list = await UserBanksFullResource(dbaccounts)
+                res.send({ message: "Accounts with balance from db", status: true, data: list});
             }
+            else{
+                try{
+                
+                    const accounts = await GetAccountsListUtility(user);
+                    console.log("Usre accounts list", accounts)
+                    const savedaccounts = []
+                    if(accounts){
+                        // save the accounts
+                         for(let i = 0; i < accounts.length; i++) {
+                            let item = accounts[i];
+                            let data = {
+                                account_id: item.account_id,
+                                name: item.name,
+                                official_name: item.official_name,
+                                balance_available: item.balances.available,
+                                balance_current: item.balances.current,
+                                type: item.type,
+                                subtype: item.subtype,
+                                mask: item.mask,
+                                UserId: user.id
+                            }
+                            let account = await db.BankAccountModel.create(data);
+                            if(account){
+                                savedaccounts.push(account)
+                                console.log("Account created", savedaccounts.length)
+                                
+                            }
+                            else{
+                                console.log("Account not created")
+                            }
+                            
+                        }
+                        let dbaccounts = await db.BankAccountModel.findAll({
+                            where: {
+                                UserId: userid
+                            }
+                        })
+                        console.log("sending back response")
+                            let list = await UserBanksFullResource(dbaccounts)
+                            res.send({ message: "Accounts with balance from db plaid", status: true, data: list});
+                        
+                    }
+                    else{
+                        res.send({ status: false, message: "No accounts connected", data: null })
+                    }
+                    
+                }
+                catch(err){
+                    console.log(err)
+                    res.send({data: {
+                        error_type: err.error_type,
+                        error_code: err.error_code,
+                        error_message: err.error_message,
+                        display_message: err.display_message,
+                        documentation_url: err.documentation_url,
+                        request_id: err.request_id,
+                    }, status: false, message: "Token error"});
+                }
+            }
+            
 
                 
         }
@@ -335,6 +468,9 @@ const GetPayrolIncome = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
+            }
             try {
                 const response = await plaidClient.creditPayrollIncomeGet({
                   user_token: authData.user.plaid_user_token,
@@ -353,15 +489,149 @@ const GetPayrolIncome = async (req, res) => {
     })
 }
 
+const AddMortgages = async(mortgages, user) => {
+    let liabilities = []
+    for(let i = 0; i < mortgages.length; i++) {
+        let item = mortgages[i];
+        item.interest_rate = item.interest_rate.percentage;
+        item.type = item.interest_rate.type;
+        item.city = item.property_address.city;
+        item.street = item.property_address.street;
+        item.region = item.property_address.region;
+        item.country = item.property_address.country;
+        item.postal_code = item.property_address.postal_code;
+        item.UserId = user.id;
+
+        let mortgage = await db.MortgageLoanModel.create(item);
+        if(mortgage){
+            liabilities.push(mortgage)
+            console.log("Mortgage created", liabilities.length)
+            
+        }
+        else{
+            console.log("Mortgage not created")
+        }
+        
+    }
+    return liabilities
+}
+
+const AddStudentLoans = async(studentLoans, user) => {
+    let liabilities = []
+    for(let i = 0; i < studentLoans.length; i++) {
+        let item = studentLoans[i];
+        item.loan_status = item.loan_status.type;
+
+        item.pslf_estimated_eligibility_date = item.pslf_status.estimated_eligibility_date;
+        item.pslf_payments_made = item.pslf_status.payments_made;
+        item.pslf_payments_remaining = item.pslf_status.payments_remaining;
+
+        item.repayment_plan = item.repayment_plan.type;
+
+        item.city = item.servicer_address.city;
+        item.street = item.servicer_address.street;
+        item.region = item.servicer_address.region;
+        item.country = item.servicer_address.country;
+        item.postal_code = item.servicer_address.postal_code;
+        item.UserId = user.id;
+
+        let mortgage = await db.StudentLoanModel.create(item);
+        if(mortgage){
+            liabilities.push(mortgage)
+            console.log("Student Loan created", liabilities.length)
+            
+        }
+        else{
+            console.log("StudentLoan not created")
+        }
+        
+    }
+    return liabilities
+}
+
 const GetLiabilities = async(req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userid = authData.user.id;
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
+            }
+            const user = await db.user.findByPk(userid);
+            console.log("Getting user details with access token ", user)
+
+
+            let liabilitiesdb = await db.MortgageLoanModel.findAll({
+                where:{
+                    UserId: user.id
+                }
+            })
+
+            let studentLoansdb = await db.StudentLoanModel.findAll({
+                where:{
+                    UserId: user.id
+                }
+            })
+            if((liabilitiesdb && liabilitiesdb.length > 0) || (studentLoansdb && studentLoansdb.length > 0)){
+                console.log("Liabilities from database")
+                res.send({ status: false, message: error, data: {mortgages: liabilitiesdb, student_loans: studentLoansdb} })
+            }
+            else{
+                try {
+                    let response = await plaidClient.liabilitiesGet({
+                      access_token: user.plaid_access_token,
+                    });
+                    console.log("Liabilities from plaid", response)
+                    // res.send({ status: false, message: error, data: response })
+                    // return
+                    response = response.data
+                    let liabilities = []
+                    if(response){
+                        // save the accounts
+                        console.log("Liabilities ", response.liabilities)
+                        let mortgages = await AddMortgages(response.liabilities.mortgage, user)
+                        let studentLoans = await AddStudentLoans(response.liabilities.student, user);
+                        // let mortgages = await db.MortgageLoanModel.findAll({
+                        //     where: {
+                        //         UserId: userid
+                        //     }
+                        // })
+                        console.log("sending back response")
+                            // let list = await UserBanksFullResource(dbaccounts)
+                        res.send({ message: "Mortgages from db plaid", status: true, data: {mortgages: mortgages, student_loans: studentLoans}});
+                        
+                    }
+                    else{
+                        res.send({ status: false, message: "No Liabilities available", data: null })
+                    }
+
+                    
+
+
+                    // res.send({ status: true, message: "Liabilities", data: response.data })
+                  } catch (error) {
+                    console.log("Error in catch", error)
+                    res.send({ status: false, message: error, data: null })
+                  }
+            }
+            
+        }
+        else{
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+    
+}
+
+
+const GetIdentity = async(req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             const user = authData.user;
             try {
-                const response = await plaidClient.liabilitiesGet({
+                const response = await plaidClient.identityGet({
                   access_token: user.plaid_access_token,
                 });
-                res.send({ status: true, message: "Liabilities", data: response.data })
+                res.send({ status: true, message: "Identify", data: response.data })
               } catch (error) {
                 res.send({ status: false, message: error, data: null })
               }
@@ -569,4 +839,5 @@ const fetchOrCreateUserToken = async (userRecord) => {
 // );
 
 export { CreateLinkToken, ExchangePublicToken, GetPayrolIncome, GetLiabilities, fetchOrCreateUserToken, GetUserBalance,
-    CreateTransferAuthorizeRequest, CreateTransfer, GetAccountsListUtility, GetTransferAuthorization, MakeTransferUtility}
+    CreateTransferAuthorizeRequest, CreateTransfer, GetAccountsListUtility, GetTransferAuthorization, MakeTransferUtility, GetIdentity,
+    GetBalancesListUtility, GetUserAccounts}
