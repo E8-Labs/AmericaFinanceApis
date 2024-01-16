@@ -191,3 +191,33 @@ export const GetUserProfile = (req, res) => {
         }
     })
 }
+
+
+export const GetBorrowers = (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            console.log("Auth data ", authData)
+            let userid = authData.user.id;
+            let offset = 0;
+            if (typeof req.query.offset !== 'undefined') {
+                offset = req.query.offset;
+            }
+            const user = await User.findAll({where:{
+                role:{
+                    [Op.ne]: UserRole.RoleAdmin
+                }
+            }});
+            if (user) {
+                let u = await UserProfileFullResource(user);
+                res.send({ status: true, message: "Profiles ", data: u })
+            }
+            else {
+                res.send({ status: false, message: "No Profile found", data: null })
+            }
+
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
