@@ -158,7 +158,7 @@ export const UpdateProfile = async(req, res) => {
             const saved = await user.save();
 
             let u = await UserProfileFullResource(user)
-            res.send({ status: true, message: "User updated", data: u })
+            res.send({ status: true, message: "User updated", data: u, userData: req.body })
 
         }
         else {
