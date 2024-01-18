@@ -29,9 +29,13 @@ const GetUserLoansList = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let offset = req.query.offset;
+            let userid = authData.user.id;
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
+            }
             let loans = await db.LoanModel.findAll({
                 where: {
-                    UserId: authData.user.id
+                    UserId: userid
                 }
             })
             let list = null;
@@ -180,6 +184,9 @@ const ApproveLoan = async (req, res) => {
         if (authData) {
             let loan_id = req.body.loan_id;
             let userid = authData.user.id;
+            // if (typeof req.query.userid !== 'undefined') {
+            //     userid = req.query.userid;
+            // }
             let user = await db.user.findByPk(userid);
 
             let loan = await db.LoanModel.findByPk(loan_id)
