@@ -46,10 +46,18 @@ const UserModel = (sequelize, Sequelize) => {
         type:Sequelize.STRING,
         default: ''
       },
+      liabilities_added:{
+        type:Sequelize.BOOLEAN,
+        default: false
+      },
       role: {
         type: Sequelize.ENUM,
         values: ['user', 'admin', 'collector'],
         default: 'user'
+      },
+      tier: {
+        type: Sequelize.STRING,
+        default: 1
       }
       
     }, 

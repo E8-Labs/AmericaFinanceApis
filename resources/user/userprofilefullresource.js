@@ -48,8 +48,10 @@ async function  getUserData(user, currentUser = null) {
         bank_connected: token ? true : false,
         houses_connected: houses ? true : false,
         identity_connected: false,
+        liabilities_added: user.liabilities_added,
         state: user.state,
         role: user.role,
+        tier: user.tier,
 
     }
 

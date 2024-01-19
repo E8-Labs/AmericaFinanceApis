@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import multer from "multer";
 import path from "path";
 import UserLoanFullResource from "../resources/loan/loan.resource.js";
+import moment from "moment-timezone";
 
 import LoanStatus from "../models/loanstatus.js";
 import UserRole from "../models/userrole.js";
@@ -130,47 +131,78 @@ const RequestLoan = async (req, res) => {
 }
 
 
+export const GetLoanCalculationsObject = async (loan_amount, user) => {
+    let loanTerm = 14; //days
+    
+
+        var today = currentDate()
+        var loan_due_date = addDays(today, 14)
+
+        var todayString = dateToString(today)
+        var loan_due_date_string = dateToString(loan_due_date)
+
+
+        let amount = loan_amount;//req.body.amount;
+        console.log("Loan amount is ", amount);
+        console.log("User state is ", user.state);
+        let stateModel = await db.SupportedStateModel.findOne({
+            where: {
+                state_name: user.state || "California",
+            }
+        })
+        if(!stateModel){
+            console.log("No state model for user supported ", user.state)
+            // res.send({ status: true, message: "Loan not supported in user's state", data: user })
+        }
+
+        let stateTierModel = await db.StateTierLoanVariableModel.findOne({where: {
+            tier: user.tier,
+            SupportedStateModelId: stateModel.id
+        }})
+
+        
+        //we can check here for min and max loan amounts as well
+        let financeFee = stateModel.finance_fee;//17.5; // percent for AL and MS
+        // if (user.state == "CA" || user.state == "California") {
+        //     financeFee = 15.0; // percent
+        // }
+
+        let financeFeeAmount = financeFee * amount / 100 - stateTierModel.waiver_fee;
+
+        let apr = (financeFeeAmount / amount) / loanTerm * 365 * 100;
+
+        let data = {
+            apr: apr, principal_amount: amount, finance_fee: financeFeeAmount,
+            finance_fee_percentage: financeFee, duration: loanTerm,
+            total_due: amount + financeFeeAmount, 
+            // user: user,
+            current_date: todayString, estimated_due_date: loan_due_date_string,
+            tier_based_waiver: stateTierModel.waiver_fee
+        }
+        return data;
+        // res.send({ status: true, message: "Loan details", data: data })
+
+    
+    
+}
+
 
 export const GetLoanCalculations = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
-            let user = await db.user.findByPk(userid);
-            let loanTerm = 14; //days
-            if (user) {
-
-                var today = currentDate()
-                var loan_due_date = addDays(today, 14)
-
-                var todayString = dateToString(today)
-                var loan_due_date_string = dateToString(loan_due_date)
-
-
-                let amount = req.body.amount;
-                console.log("Loan amount is ", amount);
-                console.log("User state is ", user.state);
-                let financeFee = 17.5; // percent for AL and MS
-                if (user.state == "CA" || user.state == "California") {
-                    financeFee = 15.0; // percent
-                }
-
-                let financeFeeAmount = financeFee * amount / 100;
-
-                let apr = (financeFeeAmount / amount) / loanTerm * 365 * 100;
-
-                let data = {
-                    apr: apr, principal_amount: amount, finance_fee: financeFeeAmount,
-                    finance_fee_percentage: financeFee, duration: loanTerm,
-                    total_due: amount + financeFeeAmount, user: user,
-                    current_date: todayString, estimated_due_date: loan_due_date_string
-                }
-
-                res.send({ status: true, message: "Loan details", data: data })
-
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
             }
-            else {
+            let user = await db.user.findByPk(userid);
+            if(user){
+                let data = GetLoanCalculationsObject(req.body.amount, user);
+                res.send({ status: true, message: "Calculations of loan", data: data })
+            }
+            else{
                 res.send({ status: false, message: "No such user", data: null })
             }
+            
         }
         else {
             res.send({ status: false, message: "Unauthenticated user", data: null })
@@ -230,7 +262,17 @@ const ApproveLoan = async (req, res) => {
 
                             let saved = await loan.save();
                             if (saved) {
-                                res.send({ status: true, message: "Loan approved", data: loan })
+                                //Create Due Dates For Loan
+                                //For Now only one payment within 14 days 
+                                //so set the due date to 14 days after the current Date
+                                let dateDue = moment().add(14, 'days');//.format('MM/DD/YYYY')
+                                let dueDateData = {
+                                    due_date: dateDue,
+                                    amount_due: loan.amount_requested,
+                                    LoanModelId: loan.id
+                                }
+                                let termsCreated = await db.UserLoanDueDateModel.create(dueDateData)
+                                res.send({ status: true, message: "Loan approved", data: loan, due_dates: termsCreated })
                             }
                             else {
                                 res.send({ status: false, message: "Loan not approved", data: null })

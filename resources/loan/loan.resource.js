@@ -1,6 +1,7 @@
 import db from "../../models/index.js";
 import UserProfileFullResource from "../user/userprofilefullresource.js";
 import { addDays, currentDate, dateToString } from "../../config/utility.js";
+import { GetLoanCalculationsObject } from "../../controllers/loan.controller.js";
 // import PlaidTokenTypes from "../../models/plaidtokentypes.js";
 
 const UserLoanFullResource = async (loan, currentUser = null) =>{
@@ -38,7 +39,12 @@ async function  getUserLoanData(loan, currentUser = null) {
     const user = await db.user.findOne({where:{
         id: loan.UserId
     }})
-    let calc = Calculations(loan, user)
+    let calc = await Calculations(loan, user)
+    let dueDates = await db.UserLoanDueDateModel.findAll({
+        where: {
+            LoanModelId: loan.id
+        }
+    })
     const u = await UserProfileFullResource(user);
     const LoanResource = {
         id: loan.id,
@@ -48,6 +54,7 @@ async function  getUserLoanData(loan, currentUser = null) {
         state: user ? user.state: '',
         user: u,
         calculations: calc,
+        due_dates: dueDates
     }
 
 
@@ -56,35 +63,11 @@ async function  getUserLoanData(loan, currentUser = null) {
 
 
 //considering the starting date today, 
- const Calculations = (loan, user) => {
-
-    let loanTerm = 14; //days
-    var today = currentDate()
-                var loan_due_date = addDays(today, 14)
-
-                var todayString = dateToString(today)
-                var loan_due_date_string = dateToString(loan_due_date)
-
-
-                let amount = loan.amount_requested;
-                console.log("Loan amount is ", amount);
-                console.log("User state is ", user.state);
-                let financeFee = 17.5; // percent for AL and MS
-                if (user.state == "CA" || user.state == "California") {
-                    financeFee = 15.0; // percent
-                }
-
-                let financeFeeAmount = financeFee * amount / 100;
-
-                let apr = (financeFeeAmount / amount) / loanTerm * 365 * 100;
-
-                let data = {
-                    apr: apr, principal_amount: amount, finance_fee: financeFeeAmount,
-                    finance_fee_percentage: financeFee, duration: loanTerm,
-                    total_due: amount + financeFeeAmount,
-                    current_date: todayString, estimated_due_date: loan_due_date_string
-                }
-                return data;
+ const Calculations = async (loan, user) => {
+    
+    let d = await GetLoanCalculationsObject(loan.amount_requested, user);
+    console.log("Calculating loan calcs ", d)
+    return d
 }
 
 export default UserLoanFullResource;

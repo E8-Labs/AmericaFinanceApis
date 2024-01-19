@@ -47,6 +47,8 @@ export const RegisterUser = async (req, res) => {
                 profile_image: '',
                 password: req.body.password,
                 role: UserRole.RoleUser,
+                tier: 0,
+                liabilities_added: false
             };
             const salt = await bcrypt.genSalt(10);
             const hashed = await bcrypt.hash(req.body.password, salt);

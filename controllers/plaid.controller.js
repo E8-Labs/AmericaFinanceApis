@@ -596,6 +596,8 @@ const GetLiabilities = async(req, res) => {
                         //     }
                         // })
                         console.log("sending back response")
+                        user.liabilities_added = true;
+                        await user.save(); // set the liabilites list obtained
                             // let list = await UserBanksFullResource(dbaccounts)
                         res.send({ message: "Mortgages from db plaid", status: true, data: {mortgages: mortgages, student_loans: studentLoans}});
                         

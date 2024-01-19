@@ -25,6 +25,9 @@ import DebtModel from "./debt.model.js";
 import BankAccountModel from "./bankaccount.model.js";
 import MortgageLoanModel from "./mortgageloan.model.js";
 import StudentLoanModel from "./studentloan.model.js";
+import SupportedStateModel from "./supportedstates.model.js";
+import StateTierLoanVariableModel from "./statetierloanvariables.model.js";
+import UserLoanDueDateModel from "./userloanduedates.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -70,6 +73,19 @@ db.user.hasMany(db.MortgageLoanModel, {onDelete: 'CASCADE', hooks: true})
 db.StudentLoanModel = StudentLoanModel(sequelize, Sequelize);
 db.MortgageLoanModel.belongsTo(db.user)
 db.user.hasMany(db.StudentLoanModel, {onDelete: 'CASCADE', hooks: true})
+
+db.SupportedStateModel = SupportedStateModel(sequelize, Sequelize);
+
+db.StateTierLoanVariableModel = StateTierLoanVariableModel(sequelize, Sequelize);
+db.StateTierLoanVariableModel.belongsTo(db.SupportedStateModel)
+db.SupportedStateModel.hasOne(db.StateTierLoanVariableModel, {onDelete: 'CASCADE', hooks: true})
+
+
+db.UserLoanDueDateModel = UserLoanDueDateModel(sequelize, Sequelize);
+db.UserLoanDueDateModel.belongsTo(db.LoanModel);
+db.LoanModel.hasMany(db.UserLoanDueDateModel, {onDelete: 'CASCADE', hooks: true})
+
+
 
 // db.category = require("./category/category.model.js")(sequelize, Sequelize);
 // db.subcategory = require("./category/subcategory.model.js")(sequelize, Sequelize, db.category);
