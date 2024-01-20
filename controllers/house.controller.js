@@ -40,14 +40,14 @@ const AddHouse = async(req, res)=>{
 
             try {
                 db.HouseModel.create(house).then(async data => {
-                    console.log("House created ", data.id)
+                    //console.log("House created ", data.id)
                     // let userToken = fetchOrCreateUserToken(data);
-                    // console.log("User Token created in Register ", userToken)
+                    // //console.log("User Token created in Register ", userToken)
                     // let u = await UserProfileFullResource(data);
                     res.send({ status: true, message: "House added", data: data })
                 }).catch(error => {
-                    console.log("House not created")
-                    console.log(error)
+                    //console.log("House not created")
+                    //console.log(error)
                     res.send({
                         message:
                             err.message || "Some error occurred while adding the house.",
@@ -57,9 +57,9 @@ const AddHouse = async(req, res)=>{
                 })
             }
             catch (error) {
-                console.log("Exception ", error)
-                console.log("House not created")
-                console.log(error)
+                //console.log("Exception ", error)
+                //console.log("House not created")
+                //console.log(error)
                 res.send({
                     message:
                         err.message || "Some error occurred while adding the house.",

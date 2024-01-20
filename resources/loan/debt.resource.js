@@ -5,15 +5,15 @@ import { addDays, currentDate, dateToString } from "../../config/utility.js";
 
 const UserDebtFullResource = async (loan, currentUser = null) =>{
     if(!Array.isArray(loan)){
-        console.log("Not array")
+        //console.log("Not array")
         return await getUserLoanData(loan, currentUser);
     }
     else{
-        console.log("Is array")
+        //console.log("Is array")
         const data = []
         for (let i = 0; i < loan.length; i++) { 
             const p = await getUserLoanData(loan[i], currentUser)
-            // console.log("Adding to index " + i)
+            // //console.log("Adding to index " + i)
             data.push(p);
           }
 
@@ -23,7 +23,7 @@ const UserDebtFullResource = async (loan, currentUser = null) =>{
 
 async function  getUserLoanData(loan, currentUser = null) {
     
-    console.log("Making resource of loan " + loan.id)
+    //console.log("Making resource of loan " + loan.id)
     // const followers = await db.following.count({
     //     where: {
     //       followed: user.id
@@ -57,7 +57,7 @@ async function  getUserLoanData(loan, currentUser = null) {
         total_balance_amount: loan.total_balance_amount,
         user: u,
     }
-console.log("Returning data in debt is ", debt)
+//console.log("Returning data in debt is ", debt)
 
     return debt;
 }

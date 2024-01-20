@@ -42,14 +42,14 @@ const AddDebt = async(req, res)=>{
 
             try {
                 db.DebtModel.create(debt).then(async data => {
-                    console.log("Debt created ", data.id)
+                    //console.log("Debt created ", data.id)
                     // let userToken = fetchOrCreateUserToken(data);
-                    // console.log("User Token created in Register ", userToken)
+                    // //console.log("User Token created in Register ", userToken)
                     // let u = await UserProfileFullResource(data);
                     res.send({ status: true, message: "Debt added", data: await UserDebtFullResource(data) })
                 }).catch(error => {
-                    console.log("Debt not created")
-                    console.log(error)
+                    //console.log("Debt not created")
+                    //console.log(error)
                     res.send({
                         message:
                             error.message || "Some error occurred while adding the debt.",
@@ -59,9 +59,9 @@ const AddDebt = async(req, res)=>{
                 })
             }
             catch (error) {
-                console.log("Exception ", error)
-                console.log("Debt not created")
-                console.log(error)
+                //console.log("Exception ", error)
+                //console.log("Debt not created")
+                //console.log(error)
                 res.send({
                     message:
                         error.message || "Some error occurred while adding the debt.",

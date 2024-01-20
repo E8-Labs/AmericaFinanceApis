@@ -1,8 +1,8 @@
 import dbConfig from "../config/db.config.js";
 
 import  Sequelize from "sequelize";
-console.log("Connecting DB")
-console.log(dbConfig.MYSQL_DB_PASSWORD)
+//console.log("Connecting DB")
+//console.log(dbConfig.MYSQL_DB_PASSWORD)
 const sequelize = new Sequelize(dbConfig.MYSQL_DB, dbConfig.MYSQL_DB_USER, dbConfig.MYSQL_DB_PASSWORD, {
   host: dbConfig.MYSQL_DB_HOST,
   port: dbConfig.MYSQL_DB_PORT,

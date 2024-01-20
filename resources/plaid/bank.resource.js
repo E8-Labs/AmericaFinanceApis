@@ -3,15 +3,15 @@ import UserProfileFullResource from "../user/userprofilefullresource.js";
 
 const UserBanksFullResource = async (loan, currentUser = null) =>{
     if(!Array.isArray(loan)){
-        console.log("Not array")
+        //console.log("Not array")
         return await getUserLoanData(loan, currentUser);
     }
     else{
-        console.log("Is array")
+        //console.log("Is array")
         const data = []
         for (let i = 0; i < loan.length; i++) { 
             const p = await getUserLoanData(loan[i], currentUser)
-            // console.log("Adding to index " + i)
+            // //console.log("Adding to index " + i)
             data.push(p);
           }
 
@@ -21,7 +21,7 @@ const UserBanksFullResource = async (loan, currentUser = null) =>{
 
 async function  getUserLoanData(loan, currentUser = null) {
     
-    console.log("Making resource of loan " + loan.id)
+    //console.log("Making resource of loan " + loan.id)
     
    
     let data = loan
@@ -47,7 +47,7 @@ async function  getUserLoanData(loan, currentUser = null) {
         createdAt: loan.createdAt,
         updatedAt: loan.updatedAt
     }
-console.log("Returning data in Bank Resource is ", debt)
+//console.log("Returning data in Bank Resource is ", debt)
 
     return debt;
 }

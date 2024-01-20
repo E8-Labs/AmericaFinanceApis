@@ -30,7 +30,7 @@ export const RegisterUser = async (req, res) => {
         res.send({ status: false, message: "Email already taken ", data: null });
     }
     else {
-        // console.log("Hello bro")
+        // //console.log("Hello bro")
         // res.send("Hello")
         if (!req.body.firstname){
             res.send({ status: false, message: "Firstname is required " , data: null });
@@ -56,17 +56,17 @@ export const RegisterUser = async (req, res) => {
 
             try {
                 User.create(userData).then(async data => {
-                    console.log("User created ", data.id)
+                    //console.log("User created ", data.id)
                     let userToken = fetchOrCreateUserToken(data);
-                    console.log("User Token created in Register ", userToken)
+                    //console.log("User Token created in Register ", userToken)
                     let user = data
                     JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async(err, token) => {
                         if (err) {
-                            console.log("Error signing")
+                            //console.log("Error signing")
                             res.send({ status: false, message: "Error Token " + err, data: null });
                         }
                         else {
-                            console.log("signed creating user")
+                            //console.log("signed creating user")
                             let u = await UserProfileFullResource(data);
                             res.send({ status: true, message: "User registered", data: { user: u, token: token } })
                             
@@ -75,8 +75,8 @@ export const RegisterUser = async (req, res) => {
 
                     
                 }).catch(error => {
-                    console.log("User not created")
-                    console.log(error)
+                    //console.log("User not created")
+                    //console.log(error)
                     res.send({
                         message:
                             err.message || "Some error occurred while creating the user.",
@@ -86,9 +86,9 @@ export const RegisterUser = async (req, res) => {
                 })
             }
             catch (error) {
-                console.log("Exception ", error)
-                console.log("User not created")
-                console.log(error)
+                //console.log("Exception ", error)
+                //console.log("User not created")
+                //console.log(error)
                 res.send({
                     message:
                         err.message || "Some error occurred while creating the user.",
@@ -107,7 +107,7 @@ export const RegisterUser = async (req, res) => {
 
 export const LoginUser = async (req, res) => {
     // res.send("Hello Login")
-    console.log("Login " + req.body.email);
+    //console.log("Login " + req.body.email);
     const email = req.body.email;
     const password = req.body.password;
     const user = await User.findOne({
@@ -117,7 +117,7 @@ export const LoginUser = async (req, res) => {
     })
 
     const count = await User.count();
-    console.log("Count " + count);
+    //console.log("Count " + count);
     if (!user) {
         res.send({ status: false, message: "Invalid email", data: null });
     }
@@ -142,7 +142,7 @@ export const LoginUser = async (req, res) => {
             }
         });
     }
-    // console.log(user);
+    // //console.log(user);
 
 }
 
@@ -150,7 +150,7 @@ export const LoginUser = async (req, res) => {
 export const UpdateProfile = async(req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
-            console.log("Auth data ", authData)
+            //console.log("Auth data ", authData)
             let userid = authData.user.id;
             
             const user = await User.findByPk(userid);
@@ -173,7 +173,7 @@ export const UpdateProfile = async(req, res) => {
 export const GetUserProfile = (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
-            console.log("Auth data ", authData)
+            //console.log("Auth data ", authData)
             let userid = authData.user.id;
             if (typeof req.query.userid !== 'undefined') {
                 userid = req.query.userid;
@@ -198,7 +198,7 @@ export const GetUserProfile = (req, res) => {
 export const GetBorrowers = (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
-            console.log("Auth data ", authData)
+            //console.log("Auth data ", authData)
             let userid = authData.user.id;
             let offset = 0;
             if (typeof req.query.offset !== 'undefined') {

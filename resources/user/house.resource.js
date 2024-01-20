@@ -4,15 +4,15 @@ import UserProfileFullResource from "../user/userprofilefullresource.js";
 
 const HouseFullResource = async (loan, currentUser = null) =>{
     if(!Array.isArray(loan)){
-        console.log("Not array")
+        //console.log("Not array")
         return await getHouseData(loan, currentUser);
     }
     else{
-        console.log("Is array")
+        //console.log("Is array")
         const data = []
         for (let i = 0; i < loan.length; i++) { 
             const p = await getHouseData(loan[i], currentUser)
-            // console.log("Adding to index " + i)
+            // //console.log("Adding to index " + i)
             data.push(p);
           }
 
@@ -22,7 +22,7 @@ const HouseFullResource = async (loan, currentUser = null) =>{
 
 async function  getHouseData(loan, currentUser = null) {
     
-    console.log("Making resource of loan " + loan.id)
+    //console.log("Making resource of loan " + loan.id)
     // const followers = await db.following.count({
     //     where: {
     //       followed: user.id

@@ -53,7 +53,7 @@ const GetUserLoansList = async (req, res) => {
 
 
 const GetAdminLoansList = async (req, res) => {
-    console.log("Admin api loans called")
+    //console.log("Admin api loans called")
     let offset = req.query.offset;
     let loans = await db.LoanModel.findAll()
     let list = null;
@@ -79,7 +79,7 @@ const GetAdminLoansList = async (req, res) => {
 
 
 const RequestLoan = async (req, res) => {
-    console.log("Requesting Loan ", req.body.amount_requested)
+    //console.log("Requesting Loan ", req.body.amount_requested)
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             let userid = authData.user.id;
@@ -94,13 +94,13 @@ const RequestLoan = async (req, res) => {
                 };
                 try {
                     db.LoanModel.create(loan).then(async data => {
-                        console.log("Loan created ", data.id)
+                        //console.log("Loan created ", data.id)
 
                         let loan = await UserLoanFullResource(data);
                         res.send({ status: true, message: "Loan created", data: loan })
                     }).catch(error => {
-                        console.log("Loan not created")
-                        console.log(error)
+                        //console.log("Loan not created")
+                        //console.log(error)
                         res.send({
                             message:
                                 err.message || "Some error occurred while requesting loan.",
@@ -110,8 +110,8 @@ const RequestLoan = async (req, res) => {
                     })
                 }
                 catch (error) {
-                    console.log("Loan not created 2")
-                    console.log(error)
+                    //console.log("Loan not created 2")
+                    //console.log(error)
                     res.send({
                         message:
                             err.message || "Some error occurred while requesting loan.",
@@ -143,15 +143,15 @@ export const GetLoanCalculationsObject = async (loan_amount, user) => {
 
 
         let amount = loan_amount;//req.body.amount;
-        console.log("Loan amount is ", amount);
-        console.log("User state is ", user.state);
+        //console.log("Loan amount is ", amount);
+        //console.log("User state is ", user.state);
         let stateModel = await db.SupportedStateModel.findOne({
             where: {
                 state_name: user.state || "California",
             }
         })
         if(!stateModel){
-            console.log("No state model for user supported ", user.state)
+            //console.log("No state model for user supported ", user.state)
             // res.send({ status: true, message: "Loan not supported in user's state", data: user })
         }
 
@@ -246,11 +246,11 @@ const ApproveLoan = async (req, res) => {
                     // if (accounts && accounts.length > 0) {
                     //     //Step 3
                     //     let account_id = accounts[4].account_id;
-                    //     console.log("Charge account ", account_id);
+                    //     //console.log("Charge account ", account_id);
 
                     //     //Step 4
                     //     let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
-                    //     console.log("Transfer Authorization created ", tAuth);
+                    //     //console.log("Transfer Authorization created ", tAuth);
                     //     // res.send({ Auth: tAuth });
                     //     let authID = tAuth.id;
                     //     if (tAuth.decision == "approved") {
@@ -314,7 +314,7 @@ const RejectLoan = async (req, res) => {
             let loan_id = req.body.loan_id;
             let userid = authData.user.id;
             let user = await db.user.findByPk(userid);
-            console.log("Loan id is ", loan_id);
+            //console.log("Loan id is ", loan_id);
             //only admin can do this
 
             if (user.role === UserRole.RoleAdmin) {
