@@ -186,6 +186,30 @@ export const GetLoanCalculationsObject = async (loan_amount, user) => {
     
 }
 
+export const GetLoanDetailsById = async (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userid = authData.user.id;
+            let user = await db.user.findByPk(userid);
+
+            let loan = await db.LoanModel.findByPk(req.query.loan_id);
+            
+            if(loan){
+                let loanRes = await UserLoanFullResource(loan);
+                // let data = GetLoanCalculationsObject(req.body.amount, user);
+                res.send({ status: true, message: "Loan found", data: loanRes })
+            }
+            else{
+                res.send({ status: false, message: "No such loan", data: null })
+            }
+            
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
+
 
 export const GetLoanCalculations = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {

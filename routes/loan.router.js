@@ -4,7 +4,7 @@ import {verifyJwtToken}  from "../middleware/jwtmiddleware.js";
 
 
 import { GetUserLoansList, RequestLoan, ApproveLoan, RejectLoan, GetAdminLoansList, 
-    GetLoanCalculations } from "../controllers/loan.controller.js";
+    GetLoanCalculations, GetLoanDetailsById } from "../controllers/loan.controller.js";
 
     import { AddDebt, GetDebtList } from "../controllers/debt.controller.js";
 
@@ -20,6 +20,7 @@ loanRouter.post("/get_loan_calculations", verifyJwtToken, GetLoanCalculations);
 
 loanRouter.post("/add_debt", verifyJwtToken, AddDebt)
 loanRouter.get("/get_debts_list", verifyJwtToken, GetDebtList)
+loanRouter.get("/get_loan_by_id", verifyJwtToken, GetLoanDetailsById);
 
 
 export default loanRouter;
