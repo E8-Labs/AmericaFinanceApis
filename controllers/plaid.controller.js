@@ -589,7 +589,7 @@ const GetLiabilities = async (req, res) => {
             })
             if ((liabilitiesdb && liabilitiesdb.length > 0) || (studentLoansdb && studentLoansdb.length > 0)) {
                 //console.log("Liabilities from database")
-                res.send({ status: false, message: error, data: { mortgages: liabilitiesdb, student_loans: studentLoansdb } })
+                res.send({ status: true, message: error, data: { mortgages: liabilitiesdb, student_loans: studentLoansdb } })
             }
             else {
                 let plaidToken = await db.PlaidTokens.findOne({
