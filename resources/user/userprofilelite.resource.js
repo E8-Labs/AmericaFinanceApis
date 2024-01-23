@@ -4,7 +4,7 @@ import PlaidTokenTypes from "../../models/plaidtokentypes.js";
 import UserLoanFullResource from "../loan/loan.resource.js";
 const Op = db.Sequelize.Op;
 
-const UserProfileFullResource = async (user, currentUser = null) =>{
+const UserProfileLiteResource = async (user, currentUser = null) =>{
     if(!Array.isArray(user)){
         //console.log("Not array")
         return await getUserData(user, currentUser);
@@ -40,15 +40,15 @@ async function  getUserData(user, currentUser = null) {
     }});
 
     
-    let currentAciveLoan = await db.LoanModel.findOne({where: {
-        loan_status:{
-            [Op.or]: [LoanStatus.StatusApproved, LoanStatus.StatusPending]
-        }
-    }})
-    let loanRes = null
-    if(currentAciveLoan){
-        loanRes = await UserLoanFullResource(currentAciveLoan)
-    }
+    // let currentAciveLoan = await db.LoanModel.findOne({where: {
+    //     loan_status:{
+    //         [Op.or]: [LoanStatus.StatusApproved, LoanStatus.StatusPending]
+    //     }
+    // }})
+    // let loanRes = null
+    // if(currentAciveLoan){
+    //     loanRes = await UserLoanFullResource(currentAciveLoan)
+    // }
    
     const UserFullResource = {
         id: user.id,
@@ -66,7 +66,7 @@ async function  getUserData(user, currentUser = null) {
         tier: user.tier,
         bankruptcy_status: user.bankruptcy_status,
         active_payday_loan: user.active_payday_loan,
-        active_loan: loanRes
+        // active_loan: loanRes
 
     }
 
@@ -74,4 +74,4 @@ async function  getUserData(user, currentUser = null) {
     return UserFullResource;
 }
 
-export default UserProfileFullResource;
+export default UserProfileLiteResource;

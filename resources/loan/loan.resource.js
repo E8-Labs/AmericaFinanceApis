@@ -2,6 +2,7 @@ import db from "../../models/index.js";
 import UserProfileFullResource from "../user/userprofilefullresource.js";
 import { addDays, currentDate, dateToString } from "../../config/utility.js";
 import { GetLoanCalculationsObject } from "../../controllers/loan.controller.js";
+import UserProfileLiteResource from "../user/userprofilelite.resource.js";
 // import PlaidTokenTypes from "../../models/plaidtokentypes.js";
 
 const UserLoanFullResource = async (loan, currentUser = null) =>{
@@ -45,7 +46,7 @@ async function  getUserLoanData(loan, currentUser = null) {
             LoanModelId: loan.id
         }
     })
-    const u = await UserProfileFullResource(user);
+    const u = await UserProfileLiteResource(user);
     const LoanResource = {
         id: loan.id,
         amount_requested: loan.amount_requested,

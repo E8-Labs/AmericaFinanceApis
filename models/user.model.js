@@ -50,6 +50,14 @@ const UserModel = (sequelize, Sequelize) => {
         type:Sequelize.BOOLEAN,
         default: false
       },
+      bankruptcy_status: {
+        type: Sequelize.INTEGER,
+        default: null
+      },
+      active_payday_loan: {
+        type: Sequelize.BOOLEAN,
+        default: false
+      },
       role: {
         type: Sequelize.ENUM,
         values: ['user', 'admin', 'collector'],
