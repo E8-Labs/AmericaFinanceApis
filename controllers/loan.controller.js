@@ -220,7 +220,7 @@ export const GetLoanCalculations = async (req, res) => {
             }
             let user = await db.user.findByPk(userid);
             if(user){
-                let data = GetLoanCalculationsObject(req.body.amount, user);
+                let data = await GetLoanCalculationsObject(req.body.amount, user);
                 res.send({ status: true, message: "Calculations of loan", data: data })
             }
             else{
