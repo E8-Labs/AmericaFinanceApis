@@ -250,74 +250,80 @@ const ApproveLoan = async (req, res) => {
                 let borrower = await db.user.findByPk(loan.UserId)
                 //only admin can do this
 
-                if (user.role === UserRole.RoleAdmin) {
-                    //send the payment to the user
-                    // once payment is sent change the loan status to approved
-
-                    /*
-                        Steps
-                        1 - Get User Accounts List
-                        2 - If No Accounts, Abort & Send Message
-                        3 - Select First account id
-                        4 - Create Transfer Authorization
-                        5 - Make Transfer
-                        6 - Approve Loan
-                    */
-
-                    //Step 1 
-                    // const accounts = await GetAccountsListUtility(borrower);
-                    // //Step 2
-                    // if (accounts && accounts.length > 0) {
-                    //     //Step 3
-                    //     let account_id = accounts[4].account_id;
-                    //     //console.log("Charge account ", account_id);
-
-                    //     //Step 4
-                    //     let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
-                    //     //console.log("Transfer Authorization created ", tAuth);
-                    //     // res.send({ Auth: tAuth });
-                    //     let authID = tAuth.id;
-                    //     if (tAuth.decision == "approved") {
-                    //         //Step 5
-                    //         let transfer = await MakeTransferUtility(borrower, loan, account_id, authID);
-                    //         // res.send({Transfer:  transfer});
-                            loan.loan_status = LoanStatus.StatusApproved;
-
-
-                            let saved = await loan.save();
-                            if (saved) {
-                                //Create Due Dates For Loan
-                                //For Now only one payment within 14 days 
-                                //so set the due date to 14 days after the current Date
-                                let dateDue = moment().add(14, 'days');//.format('MM/DD/YYYY')
-                                let dueDateData = {
-                                    due_date: dateDue,
-                                    amount_due: loan.amount_requested,
-                                    LoanModelId: loan.id
+                if(loan.loan_status === LoanStatus.StatusApproved){
+                    res.send({status: false, message: "Loan already approved", data: await UserLoanFullResource(loan)})
+                }
+                else{
+                    if (user.role === UserRole.RoleAdmin) {
+                        //send the payment to the user
+                        // once payment is sent change the loan status to approved
+    
+                        /*
+                            Steps
+                            1 - Get User Accounts List
+                            2 - If No Accounts, Abort & Send Message
+                            3 - Select First account id
+                            4 - Create Transfer Authorization
+                            5 - Make Transfer
+                            6 - Approve Loan
+                        */
+    
+                        //Step 1 
+                        // const accounts = await GetAccountsListUtility(borrower);
+                        // //Step 2
+                        // if (accounts && accounts.length > 0) {
+                        //     //Step 3
+                        //     let account_id = accounts[4].account_id;
+                        //     //console.log("Charge account ", account_id);
+    
+                        //     //Step 4
+                        //     let tAuth = await GetTransferAuthorization(borrower, loan.amount_requested, account_id, "credit");
+                        //     //console.log("Transfer Authorization created ", tAuth);
+                        //     // res.send({ Auth: tAuth });
+                        //     let authID = tAuth.id;
+                        //     if (tAuth.decision == "approved") {
+                        //         //Step 5
+                        //         let transfer = await MakeTransferUtility(borrower, loan, account_id, authID);
+                        //         // res.send({Transfer:  transfer});
+                                loan.loan_status = LoanStatus.StatusApproved;
+    
+    
+                                let saved = await loan.save();
+                                if (saved) {
+                                    //Create Due Dates For Loan
+                                    //For Now only one payment within 14 days 
+                                    //so set the due date to 14 days after the current Date
+                                    let dateDue = moment().add(14, 'days');//.format('MM/DD/YYYY')
+                                    let dueDateData = {
+                                        due_date: dateDue,
+                                        amount_due: loan.amount_requested,
+                                        LoanModelId: loan.id
+                                    }
+                                    let termsCreated = await db.UserLoanDueDateModel.create(dueDateData)
+                                    res.send({ status: true, message: "Loan approved", data: loan, due_dates: termsCreated })
                                 }
-                                let termsCreated = await db.UserLoanDueDateModel.create(dueDateData)
-                                res.send({ status: true, message: "Loan approved", data: loan, due_dates: termsCreated })
-                            }
-                            else {
-                                res.send({ status: false, message: "Loan not approved", data: null })
-                            }
-                    //     }
-                    //     else {
-                    //         let message = tAuth.decision_rationale.description;
-                    //         res.send({ status: false, message: message, data: tAuth })
-                    //     }
-
-                    // }
-                    // else {
-                    //     //Step 2
-                    //     res.send({ status: false, message: "No accounts connected", data: borrower })
-                    // }
-
-
+                                else {
+                                    res.send({ status: false, message: "Loan not approved", data: null })
+                                }
+                        //     }
+                        //     else {
+                        //         let message = tAuth.decision_rationale.description;
+                        //         res.send({ status: false, message: message, data: tAuth })
+                        //     }
+    
+                        // }
+                        // else {
+                        //     //Step 2
+                        //     res.send({ status: false, message: "No accounts connected", data: borrower })
+                        // }
+    
+    
+                    }
+                    else {
+                        res.send({ status: false, message: "You're not authorized to perform this request", data: null })
+                    }
                 }
-                else {
-                    res.send({ status: false, message: "You're not authorized to perform this request", data: null })
-                }
+                
             }
             else {
                 res.send({ status: false, message: "No such loan", data: null })
