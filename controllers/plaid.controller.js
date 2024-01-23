@@ -213,7 +213,7 @@ const CreateLinkToken = async (req, res) => {
                 products: products,//['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity'],//, 'income_verification'
                 // products: ['income_verification'],
                 // products: ['identity_verification'],
-                android_package_name: "com.americafinance",
+                // android_package_name: "com.americafinance",
                 language: 'en',
                 // webhook: 'https://webhook.example.com',
                 // redirect_uri: 'https://cdn-testing.plaid.com/link/v2/stable/sandbox-oauth-a2a-react-native-redirect.html',
