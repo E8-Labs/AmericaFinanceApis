@@ -13,7 +13,7 @@ plaidRouter.post("/create_link_token", verifyJwtToken, CreateLinkToken);
 plaidRouter.post("/exchange_public_token", verifyJwtToken, ExchangePublicToken);
 plaidRouter.post("/payroll_income", verifyJwtToken, GetPayrolIncome);
 plaidRouter.post("/user_balance", verifyJwtToken, GetUserBalance);
-plaidRouter.post("/user_accounts", verifyJwtToken, GetUserAccounts);
+plaidRouter.get("/user_accounts", verifyJwtToken, GetUserAccounts);
 plaidRouter.post("/authorize_transfer", verifyJwtToken, CreateTransferAuthorizeRequest);
 plaidRouter.post("/make_transfer", verifyJwtToken, CreateTransfer);
 plaidRouter.get("/liabilities", verifyJwtToken, GetLiabilities);
