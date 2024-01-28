@@ -30,12 +30,10 @@ const HouseModel = (sequelize, Sequelize) => {
         default: ''
       },
       from_year:{
-        type:Sequelize.INTEGER,
-        default: 0
+        type:Sequelize.STRING,
       },
       to_year:{
-        type:Sequelize.INTEGER,
-        default: 0
+        type:Sequelize.STRING,
       },
       landlord_name:{
         type:Sequelize.STRING,

@@ -82,10 +82,12 @@ const GetHouseList = async(req, res)=>{
             if (typeof req.query.userid !== 'undefined') {
                 userid = req.query.userid;
             }
+
+            console.log("Getting houses for ", userid)
             let houses = await db.HouseModel.findAll({where:{
                 UserId: userid
             }})
-
+            console.log("Housers are ", houses)
             if (houses){
                 res.send({ status: true, message: "Houses ", data: await HouseFullResource(houses) })
             }
