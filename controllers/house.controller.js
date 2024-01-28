@@ -50,7 +50,7 @@ const AddHouse = async(req, res)=>{
                     //console.log(error)
                     res.send({
                         message:
-                            err.message || "Some error occurred while adding the house.",
+                        error.message || "Some error occurred while adding the house.",
                         status: false,
                         data: null
                     });
