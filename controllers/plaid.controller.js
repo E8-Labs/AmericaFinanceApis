@@ -180,8 +180,16 @@ const CreateLinkToken = async (req, res) => {
             console.log("Token Type ", tokenType)
             let products = ['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity'];
             let income_verification_object = null;
+            let identity_verification = null
+
+            
             if (tokenType == PlaidTokenTypes.TokenIdentityVerification) {
                 products = ['identity_verification'];
+                identity_verification = {
+                    template_id: "flwtmp_7txmNPo9aeCqHK",
+                    gave_consent: true,
+
+                }
             }
             else if (tokenType == PlaidTokenTypes.TokenIncomeVerification) {
                 products = ['income_verification']
@@ -205,9 +213,11 @@ const CreateLinkToken = async (req, res) => {
                     legal_name: user.firstname + " " + user.middlename + " " + user.lastname,
                     email_address: user.email,
                     phone_number: user.phone,
-                    income_verification: income_verification_object
+                    
+                    
 
                 },
+                income_verification: income_verification_object,
                 user_token: user.plaid_user_token,
                 client_name: 'America Finance',
                 products: products,//['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity'],//, 'income_verification'
@@ -218,6 +228,7 @@ const CreateLinkToken = async (req, res) => {
                 // webhook: 'https://webhook.example.com',
                 // redirect_uri: 'https://cdn-testing.plaid.com/link/v2/stable/sandbox-oauth-a2a-react-native-redirect.html',
                 country_codes: ['US'],
+                identity_verification: identity_verification
             };
 
             if (req.body.platform == "android") {
@@ -231,6 +242,7 @@ const CreateLinkToken = async (req, res) => {
                 res.send({ data: createTokenResponse.data, status: true, message: "Token obtained", products: products, token_type: tokenType });
             } catch (error) {
                 // handle error
+                console.log("Exception Plaid", error)
                 const err = error.response.data;
 
                 // Indicates plaid API error
