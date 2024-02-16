@@ -234,7 +234,7 @@ export const GetBorrowers = (req, res) => {
 }
 
 
-export const VerificationUpdated = (req, res) => {
+export const VerificationUpdated = async(req, res) => {
 
     console.log("Data from verification is ", req.body)
 
@@ -245,65 +245,80 @@ export const VerificationUpdated = (req, res) => {
         "secret": process.env.PLAID_SECRET,
         "identity_verification_id": idv
     });
+    let v = await db.userVerificationModel.findOne({
+        where: {
+            idv: idv
+        }
+    })
+    if(v){
+        res.send({status: true, message: "Verification data", data: v})
+    }
+    else{
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://sandbox.plaid.com/identity_verification/get',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+    
+        axios.request(config)
+            .then((response) => {
+                let data = response.data;
+                console.log(JSON.stringify(data));
+                let vData = {
+                    client_user_id: data.client_user_id,
+                    completed_at: data.completed_at,
+                    documentary_verification_status: data.documentary_verification.status,
+                    idv: idv,
+                    kyc_check_status: data.kyc_check.status,
+                    risk_check_status: data.risk_check.status,
+                    selfie_check_status: data.selfie_check,
+                    template_used: data.template.id,
+                    face_image: data.documentary_verification.documents[0].images.face,
+                    original_front: data.documentary_verification.documents[0].images.original_front,
+                    original_back: data.documentary_verification.documents[0].images.original_back,
+                    city: data.user.address.city,
+                    country: data.user.address.country,
+                    street: data.user.address.street,
+                    street2: data.user.address.street2,
+                    region: data.user.address.region,
+                    postal_code: data.user.address.postal_code,
+                    dob: data.user.date_of_birth,
+                    email_address: data.user.email_address,
+                    ssn_last4: data.user.id_number.value,
+                    family_name: data.user.name.family_name,
+                    given_name: data.user.name.given_name,
+                    phone: data.user.phone_number,
+                    UserId: Number(data.client_user_id),
+    
+                }
+    
+                try{
+                    db.userVerificationModel.create(vData).then((result)=> {
+                        console.log("User verification data saved ", result)
+                        res.send({status: true, message: "Verification data", data: result})
+                    })
+                    .catch((error)=> {
+                        console.log("error ver data ", error)
+                        res.send({status: true, message: "Verification data", data: null})
+                    })
+                }
+                catch(error){
+                    console.log("Exception Ver Data ", error)
+                    res.send({status: true, message: "Verification data", data: null})
+                }
+    
+            })
+            .catch((error) => {
+                console.log(error);
+                res.send({status: true, message: "Verification data", data: null})
+            });
+    }
 
-    let config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: 'https://sandbox.plaid.com/identity_verification/get',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        data: data
-    };
-
-    axios.request(config)
-        .then((response) => {
-            let data = response.data;
-            console.log(JSON.stringify(data));
-            let vData = {
-                client_user_id: data.client_user_id,
-                completed_at: data.completed_at,
-                documentary_verification_status: data.documentary_verification.status,
-                idv: idv,
-                kyc_check_status: data.kyc_check.status,
-                risk_check_status: data.risk_check.status,
-                selfie_check_status: data.selfie_check,
-                template_used: data.template.id,
-                face_image: data.documentary_verification.documents[0].images.face,
-                original_front: data.documentary_verification.documents[0].images.original_front,
-                original_back: data.documentary_verification.documents[0].images.original_back,
-                city: data.user.address.city,
-                country: data.user.address.country,
-                street: data.user.address.street,
-                street2: data.user.address.street2,
-                region: data.user.address.region,
-                postal_code: data.user.address.postal_code,
-                dob: data.user.date_of_birth,
-                email_address: data.user.email_address,
-                ssn_last4: data.user.id_number.value,
-                family_name: data.user.name.family_name,
-                given_name: data.user.name.given_name,
-                phone: data.user.phone_number,
-                UserId: Number(data.client_user_id),
-
-            }
-
-            try{
-                db.userVerificationModel.create(vData).then((result)=> {
-                    console.log("User verification data saved ", result)
-                })
-                .catch((error)=> {
-                    console.log("error ver data ", error)
-                })
-            }
-            catch(error){
-                console.log("Exception Ver Data ", error)
-            }
-
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+    
 
 
 }
