@@ -2,11 +2,11 @@ const UserVerificationModel = (sequelize, Sequelize) => {
     const Model = sequelize.define("UserVerificationModel", {
 
         client_user_id: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(50),
             default: ""
         },
         idv: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(50),
             default: ""
         },
         completed_at: {
@@ -14,84 +14,84 @@ const UserVerificationModel = (sequelize, Sequelize) => {
             default: ""
         },
         kyc_check_status: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         documentary_verification_status: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         risk_check_status: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         selfie_check_status: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         template_used: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         face_image: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(2000),
             default: ""
         },
         original_front: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(2000),
             default: ""
         },
         original_back: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(2000),
             default: ""
         },
 
         city: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         postal_code: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         country: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         region: { // state
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         street: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         street2: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         dob: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         email_address: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         ssn_last4: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         family_name: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         given_name: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
         phone: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(100),
             default: ""
         },
 
