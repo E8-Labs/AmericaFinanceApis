@@ -239,7 +239,7 @@ export const VerificationUpdated = (req, res) => {
     console.log("Data from verification is ", req.body)
 
     let idv = req.body.identity_verification_id;
-    const axios = require('axios');
+    
     let data = JSON.stringify({
         "client_id": process.env.PLAID_CLIENT_ID,
         "secret": process.env.PLAID_SECRET,
