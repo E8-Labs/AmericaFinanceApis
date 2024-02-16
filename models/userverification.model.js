@@ -25,6 +25,10 @@ const UserVerificationModel = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             default: ""
         },
+        selfie_check_status: {
+            type: Sequelize.STRING,
+            default: ""
+        },
         template_used: {
             type: Sequelize.STRING,
             default: ""

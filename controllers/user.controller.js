@@ -1,9 +1,10 @@
 import db from "../models/index.js";
 // const S3 = require("aws-sdk/clients/s3");
-import JWT  from "jsonwebtoken";
-import bcrypt  from 'bcrypt';
+import JWT from "jsonwebtoken";
+import bcrypt from 'bcrypt';
 import multer from "multer";
 import path from "path";
+import axios from "axios";
 import { fetchOrCreateUserToken } from "./plaid.controller.js";
 // const fs = require("fs");
 // var Jimp = require("jimp");
@@ -32,13 +33,13 @@ export const RegisterUser = async (req, res) => {
     else {
         // //console.log("Hello bro")
         // res.send("Hello")
-        if (!req.body.firstname){
-            res.send({ status: false, message: "Firstname is required " , data: null });
+        if (!req.body.firstname) {
+            res.send({ status: false, message: "Firstname is required ", data: null });
         }
-        else if (!req.body.lastname){
-            res.send({ status: false, message: "Lastname is required " , data: null });
+        else if (!req.body.lastname) {
+            res.send({ status: false, message: "Lastname is required ", data: null });
         }
-        else{
+        else {
             var userData = {
                 firstname: req.body.firstname,
                 lastname: req.body.lastname,
@@ -60,7 +61,7 @@ export const RegisterUser = async (req, res) => {
                     let userToken = fetchOrCreateUserToken(data);
                     //console.log("User Token created in Register ", userToken)
                     let user = data
-                    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async(err, token) => {
+                    JWT.sign({ user }, process.env.SecretJwtKey, { expiresIn: '365d' }, async (err, token) => {
                         if (err) {
                             //console.log("Error signing")
                             res.send({ status: false, message: "Error Token " + err, data: null });
@@ -69,11 +70,11 @@ export const RegisterUser = async (req, res) => {
                             //console.log("signed creating user")
                             let u = await UserProfileFullResource(data);
                             res.send({ status: true, message: "User registered", data: { user: u, token: token } })
-                            
+
                         }
                     })
 
-                    
+
                 }).catch(error => {
                     //console.log("User not created")
                     //console.log(error)
@@ -96,10 +97,10 @@ export const RegisterUser = async (req, res) => {
                     data: null
                 });
             }
-    
-            
+
+
         }
-        
+
     }
 
 }
@@ -147,14 +148,14 @@ export const LoginUser = async (req, res) => {
 }
 
 
-export const UpdateProfile = async(req, res) => {
+export const UpdateProfile = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
             //console.log("Auth data ", authData)
             let userid = authData.user.id;
-            
+
             const user = await User.findByPk(userid);
-            
+
             let state = req.body.state;
             user.state = state;
             if (typeof req.body.active_payday_loan !== 'undefined') {
@@ -210,11 +211,13 @@ export const GetBorrowers = (req, res) => {
             if (typeof req.query.offset !== 'undefined') {
                 offset = req.query.offset;
             }
-            const user = await User.findAll({where:{
-                role:{
-                    [Op.ne]: UserRole.RoleAdmin
+            const user = await User.findAll({
+                where: {
+                    role: {
+                        [Op.ne]: UserRole.RoleAdmin
+                    }
                 }
-            }});
+            });
             if (user) {
                 let u = await UserProfileFullResource(user);
                 res.send({ status: true, message: "Profiles ", data: u })
@@ -231,7 +234,76 @@ export const GetBorrowers = (req, res) => {
 }
 
 
-export const VerificationUpdated = (req, res)=>{
+export const VerificationUpdated = (req, res) => {
 
     console.log("Data from verification is ", req.body)
+
+    let idv = req.body.identity_verification_id;
+    const axios = require('axios');
+    let data = JSON.stringify({
+        "client_id": process.env.PLAID_CLIENT_ID,
+        "secret": process.env.PLAID_SECRET,
+        "identity_verification_id": idv
+    });
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://sandbox.plaid.com/identity_verification/get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
+
+    axios.request(config)
+        .then((response) => {
+            let data = response.data;
+            console.log(JSON.stringify(data));
+            let vData = {
+                client_user_id: data.client_user_id,
+                completed_at: data.completed_at,
+                documentary_verification_status: data.documentary_verification.status,
+                idv: idv,
+                kyc_check_status: data.kyc_check.status,
+                risk_check_status: data.risk_check.status,
+                selfie_check_status: data.selfie_check,
+                template_used: data.template.id,
+                face_image: data.documentary_verification.documents.images.face,
+                original_front: data.documentary_verification.documents.images.original_front,
+                original_back: data.documentary_verification.documents.images.original_back,
+                city: data.user.address.city,
+                country: data.user.address.country,
+                street: data.user.address.street,
+                street2: data.user.address.street2,
+                region: data.user.address.region,
+                postal_code: data.user.address.postal_code,
+                dob: data.user.date_of_birth,
+                email_address: data.user.email_address,
+                ssn_last4: data.user.id_number.value,
+                family_name: data.user.name.family_name,
+                given_name: data.user.name.given_name,
+                phone: data.user.phone_number,
+                UserId: Number(data.client_user_id),
+
+            }
+
+            try{
+                db.userVerificationModel.create(vData).then((result)=> {
+                    console.log("User verification data saved ", result)
+                })
+                .catch((error)=> {
+                    console.log("error ver data ", error)
+                })
+            }
+            catch(error){
+                console.log("Exception Ver Data ", error)
+            }
+
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+
+
 }

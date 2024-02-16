@@ -28,6 +28,7 @@ import StudentLoanModel from "./studentloan.model.js";
 import SupportedStateModel from "./supportedstates.model.js";
 import StateTierLoanVariableModel from "./statetierloanvariables.model.js";
 import UserLoanDueDateModel from "./userloanduedates.model.js";
+import UserVerificationModel from "./userverification.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -61,6 +62,10 @@ db.user.hasMany(db.HouseModel, {onDelete: "CASCADE", hooks: true})
 db.DebtModel = DebtModel(sequelize, Sequelize);
 db.DebtModel.belongsTo(db.user)
 db.user.hasMany(db.DebtModel, {onDelete: 'CASCADE', hooks: true})
+
+db.userVerificationModel = UserVerificationModel(sequelize, Sequelize);
+db.userVerificationModel.belongsTo(db.user);
+db.user.hasMany(db.userVerificationModel, {onDelete: 'CASCADE', hooks: true});
 
 db.BankAccountModel = BankAccountModel(sequelize, Sequelize);
 db.BankAccountModel.belongsTo(db.user)
