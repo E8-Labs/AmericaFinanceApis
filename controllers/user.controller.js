@@ -229,3 +229,9 @@ export const GetBorrowers = (req, res) => {
         }
     })
 }
+
+
+export const VerificationUpdated = (req, res)=>{
+
+    console.log("Data from verification is ", req.body)
+}

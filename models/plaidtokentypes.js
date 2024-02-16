@@ -1,7 +1,8 @@
 const PlaidTokenTypes = {
     TokenAuth: "Auth",
     TokenIdentityVerification: "IdentityVerification",
-    TokenIncomeVerification: "IncomeVerification"
+    TokenIncomeVerification: "IncomeVerification",
+    TokenDocVerification: "DocVerification"
 }
 
 export default PlaidTokenTypes;

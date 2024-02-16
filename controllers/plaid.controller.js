@@ -191,6 +191,14 @@ const CreateLinkToken = async (req, res) => {
 
                 }
             }
+            else if (tokenType == PlaidTokenTypes.TokenDocVerification) {
+                products = ['identity_verification'];
+                identity_verification = {
+                    template_id: "idvtmp_5puuqsbf7TQ9cj",
+                    gave_consent: true,
+
+                }
+            }
             else if (tokenType == PlaidTokenTypes.TokenIncomeVerification) {
                 products = ['income_verification']
                 income_verification_object = { income_source_types: ["payroll"] }
