@@ -325,7 +325,11 @@ export const VerificationUpdated = async(req, res) => {
                 try{
                     if(v){
                         // update the old data
-                        db.userVerificationModel.update(vData).then((result)=> {
+                        db.userVerificationModel.update(vData, {
+                            where: {
+                                UserId: userid,
+                            }
+                        }).then((result)=> {
                             console.log("User verification data saved ", result)
                             res.send({status: true, message: "Verification data", data: result})
                         })
