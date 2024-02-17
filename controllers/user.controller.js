@@ -245,15 +245,33 @@ export const VerificationUpdated = async(req, res) => {
         "secret": process.env.PLAID_SECRET,
         "identity_verification_id": idv
     });
-    let v = await db.userVerificationModel.findOne({
-        where: {
-            idv: idv
-        }
-    })
-    if(v){
-        res.send({status: true, message: "Verification data", data: v})
+    let userid = null
+    if(typeof(req.body.client_user_id) !== 'undefined'){
+        userid = Number(req.body.client_user_id);
+    }
+    let v = null
+    let document_idv = null; // data for document idv
+    if(userid !== null){ // find the data using the userid. If exists then we just update the data. Otherwise create new
+        v = await db.userVerificationModel.findOne({
+            where: {
+                UserId: userid
+            }
+        })
     }
     else{
+        if(typeof(req.body.documentary_verification) !== 'undefined'){
+            // have documentary verification: may not need
+        }
+        v = await db.userVerificationModel.findOne({
+            where: {
+                idv: idv
+            }
+        })
+    }
+    // if(v){
+    //     res.send({status: true, message: "Verification data", data: v})
+    // }
+    // else{
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
@@ -271,15 +289,13 @@ export const VerificationUpdated = async(req, res) => {
                 let vData = {
                     client_user_id: data.client_user_id,
                     completed_at: data.completed_at,
-                    documentary_verification_status: data.documentary_verification.status,
+                    
                     idv: idv,
                     kyc_check_status: data.kyc_check.status,
                     risk_check_status: data.risk_check.status,
                     selfie_check_status: data.selfie_check,
                     template_used: data.template.id,
-                    face_image: data.documentary_verification.documents[0].images.face,
-                    original_front: data.documentary_verification.documents[0].images.original_front,
-                    original_back: data.documentary_verification.documents[0].images.original_back,
+                    
                     city: data.user.address.city,
                     country: data.user.address.country,
                     street: data.user.address.street,
@@ -295,16 +311,37 @@ export const VerificationUpdated = async(req, res) => {
                     UserId: Number(data.client_user_id),
     
                 }
+
+                if(data.documentary_verification != null){
+                    vData.face_image = data.documentary_verification.documents[0].images.face;
+                    vData.original_front = data.documentary_verification.documents[0].images.original_front;
+                    vData.original_back = data.documentary_verification.documents[0].images.original_back;
+                    vData.documentary_verification_status = data.documentary_verification.status;
+                }
     
                 try{
-                    db.userVerificationModel.create(vData).then((result)=> {
-                        console.log("User verification data saved ", result)
-                        res.send({status: true, message: "Verification data", data: result})
-                    })
-                    .catch((error)=> {
-                        console.log("error ver data ", error)
-                        res.send({status: true, message: "Verification data", data: null})
-                    })
+                    if(v){
+                        // update the old data
+                        db.userVerificationModel.update(vData).then((result)=> {
+                            console.log("User verification data saved ", result)
+                            res.send({status: true, message: "Verification data", data: result})
+                        })
+                        .catch((error)=> {
+                            console.log("error ver data ", error)
+                            res.send({status: true, message: "Verification data", data: null})
+                        })
+                    }
+                    else{
+                        //create new entry. No old entry exists
+                        db.userVerificationModel.create(vData).then((result)=> {
+                            console.log("User verification data saved ", result)
+                            res.send({status: true, message: "Verification data", data: result})
+                        })
+                        .catch((error)=> {
+                            console.log("error ver data ", error)
+                            res.send({status: true, message: "Verification data", data: null})
+                        })
+                    }
                 }
                 catch(error){
                     console.log("Exception Ver Data ", error)
@@ -316,7 +353,7 @@ export const VerificationUpdated = async(req, res) => {
                 console.log(error);
                 res.send({status: true, message: "Verification data", data: null})
             });
-    }
+    // }
 
     
 

@@ -9,6 +9,10 @@ const UserVerificationModel = (sequelize, Sequelize) => {
             type: Sequelize.STRING(50),
             default: ""
         },
+        document_idv: {
+            type: Sequelize.STRING(100),
+            default: ''
+        },
         completed_at: {
             type: Sequelize.STRING,
             default: ""

@@ -50,6 +50,22 @@ async function  getUserData(user, currentUser = null) {
         loanRes = await UserLoanFullResource(currentAciveLoan)
     }
    
+
+    let verData = await db.userVerificationModel.findOne({
+        where: {
+            UserId: user.id
+        }
+    })
+    let identity_connected = 'pending'
+    if(verData){
+        if(verData.kyc_check_status === 'success' && verData.documentary_verification_status === 'success' && verData.risk_check_status === 'success'){
+            identity_connected = "success"
+        }
+        else if(verData.kyc_check_status === 'failed' || verData.documentary_verification_status === 'failed' || verData.risk_check_status === 'failed'){
+            identity_connected = "failed"
+        }
+    }
+    
     const UserFullResource = {
         id: user.id,
         firstname: user.firstname,
@@ -59,14 +75,15 @@ async function  getUserData(user, currentUser = null) {
         email: user.email,
         bank_connected: token ? true : false,
         houses_connected: houses ? true : false,
-        identity_connected: false,
+        identity_connected: identity_connected,
         liabilities_added: user.liabilities_added,
         state: user.state,
         role: user.role,
         tier: user.tier,
         bankruptcy_status: user.bankruptcy_status,
         active_payday_loan: user.active_payday_loan,
-        active_loan: loanRes
+        active_loan: loanRes,
+        identity_data: verData,
 
     }
 
