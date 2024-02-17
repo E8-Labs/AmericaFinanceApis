@@ -331,22 +331,22 @@ export const VerificationUpdated = async(req, res) => {
                             }
                         }).then((result)=> {
                             console.log("User verification data saved ", result)
-                            res.send({status: true, message: "Verification data", data: result})
+                            res.send({status: true, message: "Verification data update", data: v})
                         })
                         .catch((error)=> {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data", data: null})
+                            res.send({status: true, message: "Verification data update", data: null})
                         })
                     }
                     else{
                         //create new entry. No old entry exists
                         db.userVerificationModel.create(vData).then((result)=> {
                             console.log("User verification data saved ", result)
-                            res.send({status: true, message: "Verification data", data: result})
+                            res.send({status: true, message: "Verification data new" , data: result})
                         })
                         .catch((error)=> {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data", data: null})
+                            res.send({status: true, message: "Verification data new ", data: null})
                         })
                     }
                 }
