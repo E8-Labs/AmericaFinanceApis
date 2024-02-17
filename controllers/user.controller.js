@@ -239,6 +239,9 @@ export const VerificationUpdated = async(req, res) => {
     console.log("Data from verification is ", req.body)
 
     let idv = req.body.identity_verification_id;
+    if (idv === null){
+        idv = req.body.id;
+    }
     
     let data = JSON.stringify({
         "client_id": process.env.PLAID_CLIENT_ID,
