@@ -240,6 +240,7 @@ export const VerificationUpdated = async(req, res) => {
 
     let idv = req.body.identity_verification_id;
     if (idv === null){
+         console.log("identity_verification_id is null")
         idv = req.body.id;
     }
     
@@ -335,7 +336,7 @@ export const VerificationUpdated = async(req, res) => {
                         })
                         .catch((error)=> {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data update", data: null})
+                            res.send({status: true, message: "Verification data update", data: null, exception: error})
                         })
                     }
                     else{
@@ -346,23 +347,55 @@ export const VerificationUpdated = async(req, res) => {
                         })
                         .catch((error)=> {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data new ", data: null})
+                            res.send({status: true, message: "Verification data new create v model ", data: null,  exception: error})
                         })
                     }
                 }
                 catch(error){
                     console.log("Exception Ver Data ", error)
-                    res.send({status: true, message: "Verification data", data: null})
+                    res.send({status: true, message: "Verification data inner", data: null, exception: error})
                 }
     
             })
             .catch((error) => {
                 console.log(error);
-                res.send({status: true, message: "Verification data", data: null})
+                res.send({status: true, message: "Verification data outer ", data: null, exception: error})
             });
     // }
+}
 
-    
+//add bank account maually
+export const AddPaymentSource = async (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            //console.log("Auth data ", authData)
+            let userid = authData.user.id;
 
+            const user = await User.findByPk(userid);
+            let isDefault = req.body.isDefault || true;
 
+            let defaultBank = db.UserPaymentSourceModel.findOne({
+                where:{
+                    UserId: userid,
+                    isDefault: true,
+                }
+            })
+
+            let data = {
+                bankName: req.body.bankName,
+                routingNumber: req.body.routingNumber,
+                accountNumber: req.body.accountNumber,
+                UserId: userid,
+                isDefault: isDefault
+            }
+            const saved = await user.save();
+
+            let u = await UserProfileFullResource(user)
+            res.send({ status: true, message: "User updated", data: u, userData: req.body })
+
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
 }

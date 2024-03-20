@@ -29,6 +29,7 @@ import SupportedStateModel from "./supportedstates.model.js";
 import StateTierLoanVariableModel from "./statetierloanvariables.model.js";
 import UserLoanDueDateModel from "./userloanduedates.model.js";
 import UserVerificationModel from "./userverification.model.js";
+import UserPaymentSourceModel from "./userbank.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -91,38 +92,10 @@ db.UserLoanDueDateModel.belongsTo(db.LoanModel);
 db.LoanModel.hasMany(db.UserLoanDueDateModel, {onDelete: 'CASCADE', hooks: true})
 
 
-
-// db.category = require("./category/category.model.js")(sequelize, Sequelize);
-// db.subcategory = require("./category/subcategory.model.js")(sequelize, Sequelize, db.category);
-// db.prompt = require("./prompt.model.js")(sequelize, Sequelize, db.user)
-// db.promptcategory = require("./category/promptcategory.model.js")(sequelize, Sequelize, db.category, db.prompt);
-// db.prompt.hasMany(db.promptcategory, {
-//   onDelete: 'CASCADE',
-//   onUpdate: 'CASCADE'
-// })
-// db.promptsubcategory = require("./category/promptsubcategory.model.js")(sequelize, Sequelize, db.subcategory, db.prompt);
-// db.prompt.hasMany(db.promptsubcategory, {
-//   onDelete: 'CASCADE',
-//   onUpdate: 'CASCADE'
-// })
-
-// db.promptquestion = require("./promptquestion.model.js")(sequelize, Sequelize, db.prompt)
-// db.prompt.hasMany(db.promptquestion, {
-//   onDelete: 'CASCADE',
-//   onUpdate: 'CASCADE'
-// })
+// this is the model where we save user's bank details added manually
+db.UserPaymentSourceModel = UserPaymentSourceModel(sequelize, Sequelize); 
+db.UserPaymentSourceModel.belongsTo(db.user);
+db.user.hasMany(db.UserPaymentSourceModel);
 
 
-
-
-// db.chat = require("./chat/chat.model.js")(sequelize, Sequelize, db.user, db.prompt);
-// db.message = require("./chat/message.model.js")(sequelize, Sequelize, db.chat);
-
-// db.promptlikeview = require("./promptlike.model.js")(sequelize, Sequelize, db.prompt, db.user, db.message)
-
-
-
-// db.promptcomment = require("./promptcomment.model.js")(sequelize, Sequelize, db.prompt, db.user)
-
-// db.following = require("./following.js")(sequelize, Sequelize, db.user)
 export default db;

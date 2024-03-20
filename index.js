@@ -2,11 +2,15 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
+import nodeCron from "node-cron";
+import chalk from "chalk";
+
 import userRouter from "./routes/user.router.js";
 
 import plaidRouter from "./routes/plaid.router.js";
 import loanRouter from "./routes/loan.router.js";
 import houseRouter from "./routes/hosue.router.js";
+
 // import plaidRouter2 from "./rout"
 
 import { verifyJwtToken } from "./middleware/jwtmiddleware.js";
@@ -60,7 +64,17 @@ app.use("/api/plaid", verifyJwtToken, plaidRouter);//verifyJwtToken
 app.use('/api/loans', verifyJwtToken, loanRouter);
 app.use("/api/houses", verifyJwtToken, houseRouter);
 
+//Runs every day every minute between 9-11 am
+let number = 0
+//fifth min, fifth sec of every hour
+const job = nodeCron.schedule("5 5 * * * *", function fetchPendingBankTransactions() {
+  // Download the latest info on the transactions and update database accordingly
+  console.log(chalk.green("Running scheduled job ", number));
+  number = number + 5;
 
+});
+
+job.start();
 
 const server = app.listen(process.env.Port, ()=>{
     //console.log("Started listening on " + process.env.Port);
