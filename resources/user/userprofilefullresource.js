@@ -65,6 +65,16 @@ async function  getUserData(user, currentUser = null) {
             identity_connected = "failed"
         }
     }
+
+    let paymentSourceAdded = false;
+    let banks = await db.UserPaymentSourceModel.findAll({
+        where: {
+            UserId: user.id
+        }
+    })
+    if(banks && banks.length > 0){
+        paymentSourceAdded = true;
+    }
     
     const UserFullResource = {
         id: user.id,
@@ -84,6 +94,7 @@ async function  getUserData(user, currentUser = null) {
         active_payday_loan: user.active_payday_loan,
         active_loan: loanRes,
         identity_data: verData,
+        payment_source_added: paymentSourceAdded,
 
     }
 
