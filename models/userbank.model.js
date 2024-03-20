@@ -5,9 +5,9 @@ const UserPaymentSourceModel = (sequelize, Sequelize) => {
           type:Sequelize.STRING,
           default: ''
         },
-        account_title:{
-          type:Sequelize.STRING,
-          default: ''
+        is_default:{
+          type:Sequelize.BOOLEAN,
+          default: false
         },
         routing_number:{
           type:Sequelize.STRING,

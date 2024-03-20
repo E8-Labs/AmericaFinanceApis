@@ -372,26 +372,23 @@ export const AddPaymentSource = async (req, res) => {
             let userid = authData.user.id;
 
             const user = await User.findByPk(userid);
-            let isDefault = req.body.isDefault;
-            let defaultBank = db.UserPaymentSourceModel.findOne({
-                where:{
-                    UserId: userid,
-                    isDefault: true,
-                }
-            })
+            let isDefault = req.body.is_default;
+            
             if(isDefault === true){
                 db.UserPaymentSourceModel.update(
-                    { isDefault: false }, // Set isDefault to false
+                    { is_default: false }, // Set isDefault to false
                     { where: { UserId: userid } } // Condition for the update
                   )
             }
 
             let data = {
-                bankName: req.body.bankName,
-                routingNumber: req.body.routingNumber,
-                accountNumber: req.body.accountNumber,
+                bank_name: req.body.bank_name,
+                routing_number: req.body.routing_number,
+                account_number: req.body.account_number,
+                account_type: req.body.account_number,
                 UserId: userid,
-                isDefault: isDefault
+                is_default: isDefault,
+
             }
 
             const saved = await db.UserPaymentSourceModel.create(data);
