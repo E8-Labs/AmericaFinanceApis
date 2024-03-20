@@ -1,0 +1,142 @@
+{
+    "client_user_id": "37",
+    "completed_at": "2024-02-16T06:28:33Z",
+    "created_at": "2024-02-16T06:27:23Z",
+    "documentary_verification": {
+        "documents": [
+            {
+                "analysis": {
+                    "authenticity": "match",
+                    "extracted_data": {
+                        "date_of_birth": "match",
+                        "expiration_date": "no_data",
+                        "issuing_country": "match",
+                        "name": "match"
+                    },
+                    "image_quality": "high"
+                },
+                "attempt": 1,
+                "extracted_data": null,
+                "images": {
+                    "cropped_back": null,
+                    "cropped_front": null,
+                    "face": null,
+                    "original_back": null,
+                    "original_front": null
+                },
+                "redacted_at": "2024-02-16T06:36:06Z",
+                "status": "success"
+            }
+        ],
+        "status": "success"
+    },
+    "id": "idv_5qyZesrLUwGMhh",
+    "kyc_check": {
+        "address": {
+            "po_box": "no_data",
+            "summary": "match",
+            "type": "no_data"
+        },
+        "date_of_birth": {
+            "summary": "match"
+        },
+        "id_number": {
+            "summary": "match"
+        },
+        "name": {
+            "summary": "match"
+        },
+        "phone_number": {
+            "area_code": "match",
+            "summary": "match"
+        },
+        "status": "success"
+    },
+    "previous_attempt_id": null,
+    "redacted_at": "2024-02-16T06:36:06Z",
+    "request_id": "eYFJoUUGUu1e15k",
+    "risk_check": {
+        "behavior": {
+            "bot_detected": "no",
+            "fraud_ring_detected": "no",
+            "user_interactions": "genuine"
+        },
+        "devices": [
+            {
+                "ip_proxy_type": "none_detected",
+                "ip_spam_list_count": 0,
+                "ip_timezone_offset": "-05:00:00"
+            }
+        ],
+        "email": {
+            "breach_count": 1,
+            "domain_is_custom": "no",
+            "domain_is_disposable": "no",
+            "domain_is_free_provider": "no",
+            "domain_registered_at": "2010-12-25",
+            "first_breached_at": "2020-12-25",
+            "is_deliverable": "yes",
+            "last_breached_at": "2020-12-25",
+            "linked_services": [
+                "facebook",
+                "google",
+                "twitter",
+                "instagram",
+                "yahoo",
+                "whatsapp",
+                "telegram",
+                "viber",
+                "ok"
+            ],
+            "top_level_domain_is_suspicious": "no"
+        },
+        "identity_abuse_signals": null,
+        "phone": {
+            "linked_services": [
+                "facebook",
+                "google",
+                "twitter",
+                "instagram",
+                "yahoo",
+                "whatsapp",
+                "telegram",
+                "viber",
+                "ok"
+            ]
+        },
+        "status": "failed"
+    },
+    "selfie_check": null,
+    "shareable_url": "https://verify-sandbox.plaid.com/verify/idv_5qyZesrLUwGMhh?key=885f68a8aa35b5e95a3500d7caf965ce",
+    "status": "failed",
+    "steps": {
+        "accept_tos": "skipped",
+        "documentary_verification": "success",
+        "kyc_check": "success",
+        "risk_check": "failed",
+        "selfie_check": "not_applicable",
+        "verify_sms": "success",
+        "watchlist_screening": "not_applicable"
+    },
+    "template": {
+        "id": "idvtmp_7txmNPo9aeCqHK",
+        "version": 4
+    },
+    "user": {
+        "address": {
+            "city": null,
+            "country": "US",
+            "postal_code": null,
+            "region": null,
+            "street": null,
+            "street2": null
+        },
+        "date_of_birth": null,
+        "email_address": null,
+        "id_number": null,
+        "ip_address": "154.80.6.193",
+        "name": null,
+        "phone_number": null
+    },
+    "watchlist_screening_id": null
+}
