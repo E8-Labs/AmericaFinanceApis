@@ -379,9 +379,11 @@ export const AddPaymentSource = async (req, res) => {
                     isDefault: true,
                 }
             })
-            if(isDefault && defaultBank){
-                defaultBank.isDefault = false;
-                defaultBank.save();
+            if(isDefault === true){
+                db.UserPaymentSourceModel.update(
+                    { isDefault: false }, // Set isDefault to false
+                    { where: { UserId: userid } } // Condition for the update
+                  )
             }
 
             let data = {
