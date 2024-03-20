@@ -43,7 +43,8 @@ async function  getUserData(user, currentUser = null) {
     let currentAciveLoan = await db.LoanModel.findOne({where: {
         loan_status:{
             [Op.or]: [LoanStatus.StatusApproved, LoanStatus.StatusPending]
-        }
+        },
+        UserId: user.id
     }})
     let loanRes = null
     if(currentAciveLoan){

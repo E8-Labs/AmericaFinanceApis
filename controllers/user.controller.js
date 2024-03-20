@@ -388,13 +388,38 @@ export const AddPaymentSource = async (req, res) => {
                 account_type: req.body.account_number,
                 UserId: userid,
                 is_default: isDefault,
-
             }
 
             const saved = await db.UserPaymentSourceModel.create(data);
 
             let u = await UserProfileFullResource(user)
             res.send({ status: true, message: "Bank Added", data: u, bank: saved })
+
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
+
+
+//add bank account maually
+export const ListPaymentSources = async (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            //console.log("Auth data ", authData)
+            let userid = authData.user.id;
+
+            const user = await User.findByPk(userid);
+            
+            const sources = await db.UserPaymentSourceModel.findAll({
+                where:{
+                    UserId: userid
+                }
+            });
+
+            // let u = await UserProfileFullResource(user)
+            res.send({ status: true, message: "Banks List", data: sources })
 
         }
         else {
