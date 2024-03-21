@@ -58,6 +58,15 @@ const UserModel = (sequelize, Sequelize) => {
         type: Sequelize.BOOLEAN,
         default: false
       },
+      active_duty_manual: {
+        type: Sequelize.STRING,
+        default: ''
+      },
+      approved_by_admin: {
+        type: Sequelize.ENUM,
+        values: ['approved', 'blacklisted', 'none'],
+        default: 'none'
+      },
       role: {
         type: Sequelize.ENUM,
         values: ['user', 'admin', 'collector'],

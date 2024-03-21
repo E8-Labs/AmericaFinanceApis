@@ -161,6 +161,9 @@ export const UpdateProfile = async (req, res) => {
             if (typeof req.body.active_payday_loan !== 'undefined') {
                 user.active_payday_loan = req.body.active_payday_loan;
             }
+            if (typeof req.body.active_duty_manual !== 'undefined') {
+                user.active_duty_manual = req.body.active_duty_manual;
+            }
             if (typeof req.body.bankruptcy_status !== 'undefined') {
                 user.bankruptcy_status = req.body.bankruptcy_status;
             }

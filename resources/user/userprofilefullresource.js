@@ -94,6 +94,7 @@ async function  getUserData(user, currentUser = null) {
         bankruptcy_status: user.bankruptcy_status,
         active_payday_loan: user.active_payday_loan,
         active_loan: loanRes,
+        active_duty_manual: user.active_duty_manual,
         identity_data: verData,
         payment_source_added: paymentSourceAdded,
 
