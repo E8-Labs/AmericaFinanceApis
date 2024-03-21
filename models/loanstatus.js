@@ -1,6 +1,7 @@
 const LoanStatus =  {
   StatusPending: 'pending',
   StatusApproved: 'approved',
+  StatusAwaitingCreditByAdmin: 'awaitingCredit',
   StatusRejected: 'rejected',
   StatusNoServiceArea: 'noservice',
   StatusCancelled: 'cancelled',

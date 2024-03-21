@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import axios from "axios";
 import { fetchOrCreateUserToken } from "./plaid.controller.js";
+import nodemailer from 'nodemailer'
 // const fs = require("fs");
 // var Jimp = require("jimp");
 // require("dotenv").config();
@@ -442,7 +443,7 @@ export const AddPaymentSource = async (req, res) => {
                             bank_name: bank,
                             routing_number: req.body.routing_number,
                             account_number: req.body.account_number,
-                            account_type: req.body.account_number,
+                            account_type: req.body.account_type,
                             UserId: userid,
                             is_default: isDefault,
                         }
@@ -493,3 +494,105 @@ export const ListPaymentSources = async (req, res) => {
         }
     })
 }
+
+
+
+function generateRandomCode(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+
+
+export const SendPasswordResetEmail = (req, res) => {
+    let email = req.body.email;
+    let user = db.user.findOne({
+      where: {
+        email: email
+      }
+    })
+    if (user) {
+      //send email here
+      // Create a transporter object using the default SMTP transport
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com", // Replace with your mail server host
+        port: 587, // Port number depends on your email provider and whether you're using SSL or not
+        secure: false, // true for 465 (SSL), false for other ports
+        auth: {
+          user: "salman@e8-labs.com", // Your email address
+          pass: "uzmvwsljflyqnzgu", // Your email password
+        },
+      });
+      const randomCode = generateRandomCode(6);
+      db.passwordResetCode.destroy({
+        where:{
+          email: email
+        }
+      })
+      db.passwordResetCode.create({
+        email: email,
+        code: `${randomCode}`
+      })
+      // Setup email data with unicode symbols
+      let mailOptions = {
+        from: '"America Finance" salman@e8-labs.com', // Sender address
+        to: email, // List of recipients
+        subject: "Password Reset Code", // Subject line
+        text: `${randomCode}`, // Plain text body
+        html: `<html><b>Hello,</b>This is your reset code.${randomCode} </html>`, // HTML body
+      };
+  
+      // Send mail with defined transport object
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          res.send({status: false, message: "Code not sent"})
+           console.log(error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        res.send({status: true, message: "Code sent"})
+        // Preview only available when sending through an Ethereal account
+        
+      });
+    }
+    else {
+      res.send({ status: false, data: null, message: "No such user" })
+    }
+  }
+  
+  export const ResetPassword = async (req, res)=>{
+    let email = req.body.email;
+    let password = req.body.password;
+    let code = req.body.code;
+  
+    let dbCode = await db.passwordResetCode.findOne({
+      where: {
+        email: email
+      }
+    })
+  
+    if(dbCode && dbCode.code === code){
+      const salt = await bcrypt.genSalt(10);
+      const hashed = await bcrypt.hash(password, salt);
+      let user = await db.user.findOne({
+        where: {
+          email: email
+        }
+      })
+      user.password = hashed;
+      let saved = await user.save();
+      if(saved){
+        res.send({ status: true, data: null, message: "Password updated" })
+      }
+      else{
+        res.send({ status: false, data: null, message: "Error updating password" })
+      }
+    }
+    else{
+      res.send({ status: false, data: null, message: "Incorrect code" })
+    }
+  }

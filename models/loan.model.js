@@ -11,7 +11,7 @@ const LoanModel = (sequelize, Sequelize) => {
       },
       loan_status:{
         type:Sequelize.ENUM,
-        values: ['pending', 'rejected', 'notserviced', 'approved', 'cancelled', 'completed'],
+        values: ['pending', 'rejected', 'notserviced', 'approved', 'cancelled', 'completed', 'awaitingCredit'],
         default: 'pending'
       }
       

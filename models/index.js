@@ -30,6 +30,7 @@ import StateTierLoanVariableModel from "./statetierloanvariables.model.js";
 import UserLoanDueDateModel from "./userloanduedates.model.js";
 import UserVerificationModel from "./userverification.model.js";
 import UserPaymentSourceModel from "./userbank.model.js";
+import passwordresetcodeModel from "./passwordresetcode.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -90,7 +91,7 @@ db.SupportedStateModel.hasOne(db.StateTierLoanVariableModel, {onDelete: 'CASCADE
 db.UserLoanDueDateModel = UserLoanDueDateModel(sequelize, Sequelize);
 db.UserLoanDueDateModel.belongsTo(db.LoanModel);
 db.LoanModel.hasMany(db.UserLoanDueDateModel, {onDelete: 'CASCADE', hooks: true})
-
+db.passwordResetCode = passwordresetcodeModel(sequelize, Sequelize);
 
 // this is the model where we save user's bank details added manually
 db.UserPaymentSourceModel = UserPaymentSourceModel(sequelize, Sequelize); 
