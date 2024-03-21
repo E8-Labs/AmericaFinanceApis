@@ -180,6 +180,8 @@ export const UpdateProfile = async (req, res) => {
 }
 
 
+
+
 export const GetUserProfile = (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
@@ -237,36 +239,36 @@ export const GetBorrowers = (req, res) => {
 }
 
 
-export const VerificationUpdated = async(req, res) => {
+export const VerificationUpdated = async (req, res) => {
 
     console.log("Data from verification is ", req.body)
 
     let idv = req.body.identity_verification_id;
-    if (idv === null){
-         console.log("identity_verification_id is null")
+    if (idv === null) {
+        console.log("identity_verification_id is null")
         idv = req.body.id;
     }
-    
+
     let data = JSON.stringify({
         "client_id": process.env.PLAID_CLIENT_ID,
         "secret": process.env.PLAID_SECRET,
         "identity_verification_id": idv
     });
     let userid = null
-    if(typeof(req.body.client_user_id) !== 'undefined'){
+    if (typeof (req.body.client_user_id) !== 'undefined') {
         userid = Number(req.body.client_user_id);
     }
     let v = null
     let document_idv = null; // data for document idv
-    if(userid !== null){ // find the data using the userid. If exists then we just update the data. Otherwise create new
+    if (userid !== null) { // find the data using the userid. If exists then we just update the data. Otherwise create new
         v = await db.userVerificationModel.findOne({
             where: {
                 UserId: userid
             }
         })
     }
-    else{
-        if(typeof(req.body.documentary_verification) !== 'undefined'){
+    else {
+        if (typeof (req.body.documentary_verification) !== 'undefined') {
             // have documentary verification: may not need
         }
         v = await db.userVerificationModel.findOne({
@@ -279,95 +281,134 @@ export const VerificationUpdated = async(req, res) => {
     //     res.send({status: true, message: "Verification data", data: v})
     // }
     // else{
-        let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://sandbox.plaid.com/identity_verification/get',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: data
-        };
-    
-        axios.request(config)
-            .then((response) => {
-                let data = response.data;
-                console.log(JSON.stringify(data));
-                let vData = {
-                    client_user_id: data.client_user_id,
-                    completed_at: data.completed_at,
-                    
-                    idv: idv,
-                    kyc_check_status: data.kyc_check.status,
-                    risk_check_status: data.risk_check.status,
-                    selfie_check_status: data.selfie_check,
-                    template_used: data.template.id,
-                    
-                    city: data.user.address ? data.user.address.city : '',
-                    country: data.user.address ? data.user.address.country : '',
-                    street: data.user.address ? data.user.address.street : '',
-                    street2: data.user.address ? data.user.address.street2 : '',
-                    region: data.user.address ? data.user.address.region : '',
-                    postal_code: data.user.address ? data.user.address.postal_code : '',
-                    dob: data.user.date_of_birth,
-                    email_address: data.user.email_address,
-                    ssn_last4: data.user.id_number ? data.user.id_number.value : '',
-                    family_name: data.user.name ? data.user.name.family_name : '',
-                    given_name: data.user.name ? data.user.name.given_name : '',
-                    phone: data.user.phone_number,
-                    UserId: Number(data.client_user_id),
-    
-                }
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://sandbox.plaid.com/identity_verification/get',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: data
+    };
 
-                if(data.documentary_verification != null){
-                    vData.face_image = data.documentary_verification.documents[0].images.face;
-                    vData.original_front = data.documentary_verification.documents[0].images.original_front;
-                    vData.original_back = data.documentary_verification.documents[0].images.original_back;
-                    vData.documentary_verification_status = data.documentary_verification.status;
-                }
-    
-                try{
-                    if(v){
-                        // update the old data
-                        db.userVerificationModel.update(vData, {
-                            where: {
-                                UserId: userid,
-                            }
-                        }).then((result)=> {
-                            console.log("User verification data saved ", result)
-                            res.send({status: true, message: "Verification data update", data: v})
-                        })
-                        .catch((error)=> {
+    axios.request(config)
+        .then((response) => {
+            let data = response.data;
+            console.log(JSON.stringify(data));
+            let vData = {
+                client_user_id: data.client_user_id,
+                completed_at: data.completed_at,
+
+                idv: idv,
+                kyc_check_status: data.kyc_check.status,
+                risk_check_status: data.risk_check.status,
+                selfie_check_status: data.selfie_check,
+                template_used: data.template.id,
+
+                city: data.user.address ? data.user.address.city : '',
+                country: data.user.address ? data.user.address.country : '',
+                street: data.user.address ? data.user.address.street : '',
+                street2: data.user.address ? data.user.address.street2 : '',
+                region: data.user.address ? data.user.address.region : '',
+                postal_code: data.user.address ? data.user.address.postal_code : '',
+                dob: data.user.date_of_birth,
+                email_address: data.user.email_address,
+                ssn_last4: data.user.id_number ? data.user.id_number.value : '',
+                family_name: data.user.name ? data.user.name.family_name : '',
+                given_name: data.user.name ? data.user.name.given_name : '',
+                phone: data.user.phone_number,
+                UserId: Number(data.client_user_id),
+
+            }
+
+            if (data.documentary_verification != null) {
+                vData.face_image = data.documentary_verification.documents[0].images.face;
+                vData.original_front = data.documentary_verification.documents[0].images.original_front;
+                vData.original_back = data.documentary_verification.documents[0].images.original_back;
+                vData.documentary_verification_status = data.documentary_verification.status;
+            }
+
+            try {
+                if (v) {
+                    // update the old data
+                    db.userVerificationModel.update(vData, {
+                        where: {
+                            UserId: userid,
+                        }
+                    }).then((result) => {
+                        console.log("User verification data saved ", result)
+                        res.send({ status: true, message: "Verification data update", data: v })
+                    })
+                        .catch((error) => {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data update", data: null, exception: error})
+                            res.send({ status: true, message: "Verification data update", data: null, exception: error })
                         })
-                    }
-                    else{
-                        //create new entry. No old entry exists
-                        db.userVerificationModel.create(vData).then((result)=> {
-                            console.log("User verification data saved ", result)
-                            res.send({status: true, message: "Verification data new" , data: result})
-                        })
-                        .catch((error)=> {
+                }
+                else {
+                    //create new entry. No old entry exists
+                    db.userVerificationModel.create(vData).then((result) => {
+                        console.log("User verification data saved ", result)
+                        res.send({ status: true, message: "Verification data new", data: result })
+                    })
+                        .catch((error) => {
                             console.log("error ver data ", error)
-                            res.send({status: true, message: "Verification data new create v model ", data: null,  exception: error})
+                            res.send({ status: true, message: "Verification data new create v model ", data: null, exception: error })
                         })
-                    }
                 }
-                catch(error){
-                    console.log("Exception Ver Data ", error)
-                    res.send({status: true, message: "Verification data inner", data: null, exception: error})
-                }
-    
-            })
-            .catch((error) => {
-                console.log(error);
-                res.send({status: true, message: "Verification data outer ", data: null, exception: error})
-            });
+            }
+            catch (error) {
+                console.log("Exception Ver Data ", error)
+                res.send({ status: true, message: "Verification data inner", data: null, exception: error })
+            }
+
+        })
+        .catch((error) => {
+            console.log(error);
+            res.send({ status: true, message: "Verification data outer ", data: null, exception: error })
+        });
     // }
 }
 
+
+
+
 //add bank account maually
+
+async function checkValidAccount(routing) {
+    let queryUrl = "https://sandbox.api.payliance.com/api/v1/echeck/queryinstitution"
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: queryUrl,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer U01hamlkOlVDWDBFMG9KTmtzWWc5aE92bndPKzdEL3FDVExjeUY5RnZWRVNYUlcyS2RydzZsMHMybk1GVWo4Q1dJUjhHNEhFaGJqaU0yYVZoU1dLUzZLZ3VnUHh3b2ZSWDlLaXVSN25yRVgveHcwZHFjb3VYdGpsZmJwZWlFT0dyMjZJRjdhc1dIeENOMXp3VGpvK0NoTnNZMlFFdmpjL1ltODNuZzJtYmIrbFRZbVVoZmc0NUVKNlUyaE1qSzZ0RE9wREdJdjRYc25WTWJqY2ZxTDRXRE01RVF6cnlLREZpMm1YVnVuNllxczUrYjNrVHF0NUpnYXNYNEVwcVdoRnJ5YXg3SlQ='
+        },
+        data: JSON.stringify({ routing: routing })
+    };
+
+    try {
+        let response = await axios.request(config);
+        if (response) {
+            let json = response.data;//await response.json()
+            console.log(json)
+            if (json.successful === true) {
+                return json;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    catch (error) {
+        console.log("Exception ", error)
+        return false;
+    }
+
+}
 export const AddPaymentSource = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
         if (authData) {
@@ -376,27 +417,49 @@ export const AddPaymentSource = async (req, res) => {
 
             const user = await User.findByPk(userid);
             let isDefault = req.body.is_default;
-            
-            if(isDefault === true){
+
+            if (isDefault === true) {
                 db.UserPaymentSourceModel.update(
                     { is_default: false }, // Set isDefault to false
                     { where: { UserId: userid } } // Condition for the update
-                  )
+                )
             }
 
-            let data = {
-                bank_name: req.body.bank_name,
-                routing_number: req.body.routing_number,
-                account_number: req.body.account_number,
-                account_type: req.body.account_number,
-                UserId: userid,
-                is_default: isDefault,
+            let routingCheck = await checkValidAccount(req.body.routing_number);
+            console.log("Routing check ", routingCheck)
+            if (routingCheck === false) {
+                console.log("Invalid routing number")
+                res.send({ status: false, message: "Invalid routing number", data: null })
+            }
+            else {
+                if (routingCheck.achEligible) {
+                    let bank = routingCheck.bank;
+                    if (false) {//(bank !== req.body.bank_name){
+                        res.send({ status: false, message: "Routing number does not match the bank provided", data: null })
+                    }
+                    else {
+                        let data = {
+                            bank_name: bank,
+                            routing_number: req.body.routing_number,
+                            account_number: req.body.account_number,
+                            account_type: req.body.account_number,
+                            UserId: userid,
+                            is_default: isDefault,
+                        }
+
+                        const saved = await db.UserPaymentSourceModel.create(data);
+
+                        let u = await UserProfileFullResource(user)
+                        res.send({ status: true, message: "Bank Added", data: u, bank: saved })
+                    }
+
+                }
+                else {
+                    res.send({ status: false, message: "This account is not eligible for ach payments", data: null })
+                }
+
             }
 
-            const saved = await db.UserPaymentSourceModel.create(data);
-
-            let u = await UserProfileFullResource(user)
-            res.send({ status: true, message: "Bank Added", data: u, bank: saved })
 
         }
         else {
@@ -414,9 +477,9 @@ export const ListPaymentSources = async (req, res) => {
             let userid = authData.user.id;
 
             const user = await User.findByPk(userid);
-            
+
             const sources = await db.UserPaymentSourceModel.findAll({
-                where:{
+                where: {
                     UserId: userid
                 }
             });
