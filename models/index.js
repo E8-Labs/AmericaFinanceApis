@@ -31,6 +31,7 @@ import UserLoanDueDateModel from "./userloanduedates.model.js";
 import UserVerificationModel from "./userverification.model.js";
 import UserPaymentSourceModel from "./userbank.model.js";
 import passwordresetcodeModel from "./passwordresetcode.model.js";
+import {BankIncomeModel, PayrollIncomeModel} from "./PlaidIncome/bankincome.model.js";
 
 
 db.user = UserModel(sequelize, Sequelize);
@@ -97,6 +98,14 @@ db.passwordResetCode = passwordresetcodeModel(sequelize, Sequelize);
 db.UserPaymentSourceModel = UserPaymentSourceModel(sequelize, Sequelize); 
 db.UserPaymentSourceModel.belongsTo(db.user);
 db.user.hasMany(db.UserPaymentSourceModel);
+
+db.plaidBankIncomeModel = BankIncomeModel(sequelize, Sequelize);
+db.plaidBankIncomeModel.belongsTo(db.user);
+db.user.hasMany(db.plaidBankIncomeModel);
+
+db.payrollIncomeModel = PayrollIncomeModel(sequelize, Sequelize);
+db.payrollIncomeModel.belongsTo(db.user);
+db.user.hasMany(db.payrollIncomeModel);
 
 
 export default db;

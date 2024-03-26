@@ -499,6 +499,57 @@ const GetUserAccounts = async (req, res) => {
     })
 }
 
+const GetBankIncome = async (req, res) => {
+    JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
+        if (authData) {
+            let userid = authData.user.id;
+            if (typeof req.query.userid !== 'undefined') {
+                userid = req.query.userid;
+            }
+            try {
+
+                let dbPayrollIncome = await db.plaidBankIncomeModel.findOne({
+                    where: {
+                        UserId: userid
+                    }
+                })
+                if(dbPayrollIncome){
+                    let data = {UserId: dbPayrollIncome.UserId, id: dbPayrollIncome.id, data: JSON.parse(dbPayrollIncome.data), createdAt: dbPayrollIncome.createdAt, updatedAt: dbPayrollIncome.updatedAt}
+                    res.send({ status: true, message: "Bank Income DB", data: data })
+                }
+                else{
+                    const response = await plaidClient.creditBankIncomeGet({
+                        user_token: authData.user.plaid_user_token,
+                    });
+                    let data = response.data
+                    let dbData = JSON.stringify(data)
+                    let deleted = await db.plaidBankIncomeModel.destroy({
+                        where: {
+                            UserId: userid
+                        }
+                    })
+                    let saved = await db.plaidBankIncomeModel.create({
+                        data: dbData,
+                        UserId: userid
+                    })
+                    let savedData = {UserId: saved.UserId, id: saved.id, data: JSON.parse(saved.data), createdAt: saved.createdAt, updatedAt: saved.updatedAt}
+                    res.send({ status: true, message: "Bank Income", data: data })
+                }
+                
+                
+            } catch (error) {
+                //console.log(error)
+                res.send({ status: false, message: error, data: null })
+            }
+
+
+        }
+        else {
+            res.send({ status: false, message: "Unauthenticated user", data: null })
+        }
+    })
+}
+
 
 const GetPayrolIncome = async (req, res) => {
     JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
@@ -508,10 +559,36 @@ const GetPayrolIncome = async (req, res) => {
                 userid = req.query.userid;
             }
             try {
-                const response = await plaidClient.creditPayrollIncomeGet({
-                    user_token: authData.user.plaid_user_token,
-                });
-                res.send({ status: true, message: "Payrol Income", data: response.data })
+
+                let dbPayrollIncome = await db.payrollIncomeModel.findOne({
+                    where: {
+                        UserId: userid
+                    }
+                })
+                if(dbPayrollIncome){
+                    let data = {UserId: dbPayrollIncome.UserId, id: dbPayrollIncome.id, data: JSON.parse(dbPayrollIncome.data), createdAt: dbPayrollIncome.createdAt, updatedAt: dbPayrollIncome.updatedAt}
+                    res.send({ status: true, message: "Payrol Income DB", data: data })
+                }
+                else{
+                    const response = await plaidClient.creditPayrollIncomeGet({
+                        user_token: authData.user.plaid_user_token,
+                    });
+                    let data = response.data
+                    let dbData = JSON.stringify(data)
+                    let deleted = await db.payrollIncomeModel.destroy({
+                        where: {
+                            UserId: userid
+                        }
+                    })
+                    let saved = await db.payrollIncomeModel.create({
+                        data: dbData,
+                        UserId: userid
+                    })
+                    let savedData = {UserId: saved.UserId, id: saved.id, data: JSON.parse(saved.data), createdAt: saved.createdAt, updatedAt: saved.updatedAt}
+                    res.send({ status: true, message: "Payrol Income", data: data })
+                }
+                
+                
             } catch (error) {
                 //console.log(error)
                 res.send({ status: false, message: error, data: null })
@@ -896,5 +973,5 @@ const fetchOrCreateUserToken = async (userRecord) => {
 export {
     CreateLinkToken, ExchangePublicToken, GetPayrolIncome, GetLiabilities, fetchOrCreateUserToken, GetUserBalance,
     CreateTransferAuthorizeRequest, CreateTransfer, GetAccountsListUtility, GetTransferAuthorization, MakeTransferUtility, GetIdentity,
-    GetBalancesListUtility, GetUserAccounts
+    GetBalancesListUtility, GetUserAccounts, GetBankIncome
 }
