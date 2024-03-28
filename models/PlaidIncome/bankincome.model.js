@@ -27,6 +27,21 @@ const BankIncomeModel = (sequelize, Sequelize) => {
   };
 
 
+
+  const EmploymentDetailModel = (sequelize, Sequelize) => {
+    const EmploymentDetailModel = sequelize.define("EmploymentDetailModel", {
+      
+    data:{
+        type:Sequelize.STRING(10000),
+        default: ""
+      },
+     
+      
+    });
+  
+    return EmploymentDetailModel;
+  };
+
   
 
-  export {BankIncomeModel, PayrollIncomeModel};
+  export {BankIncomeModel, PayrollIncomeModel, EmploymentDetailModel};

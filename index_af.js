@@ -133,5 +133,5 @@ const job = nodeCron.schedule("* * * * *", async function fetchPendingBankTransa
 job.start();
 
 const server = app.listen(process.env.Port, ()=>{
-    //console.log("Started listening on " + process.env.Port);
+    // console.log("Started listening on " + process.env.Port);
 })
