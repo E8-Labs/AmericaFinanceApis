@@ -312,7 +312,7 @@ const ExchangePublicToken = async (req, res) => {
           public_token: req.body.public_token,
         });
         let tokenType = req.body.token_type;//PlaidTokenTypes.TokenAuth;
-
+        console.log("Token type ", tokenType);
         let access_token = exchangeResponse.data.access_token;
         let user = authData.user;
         user.plaid_access_token = access_token;
@@ -323,8 +323,9 @@ const ExchangePublicToken = async (req, res) => {
           .then( async data => {
             if (!data) {
               let savedData = null;
-              if (tokenType === "Auth") {
+              if (tokenType === PlaidTokenTypes.TokenAuth) {
                 //get bank data and save 
+                console.log("loading banks");
                 savedData = await getBankDataAndSave(user)
               }
               res.send({
@@ -336,7 +337,7 @@ const ExchangePublicToken = async (req, res) => {
             }
           })
           .catch(err => {
-            //console.log(err)
+            console.log(err)
             res.send({
               message: "Error updating User with id=" + userid, status: false, data: null, error: err
             });
