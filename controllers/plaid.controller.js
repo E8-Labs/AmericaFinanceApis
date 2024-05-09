@@ -324,16 +324,17 @@ const ExchangePublicToken = async (req, res) => {
           .then( async data => {
             if (!data) {
               
-              if (tokenType === PlaidTokenTypes.TokenAuth) {
-                //get bank data and save 
-                console.log("loading banks");
-                savedData = await getBankDataAndSave(user)
-              }
+              
               res.send({
                 message: `Cannot update User with id=${userid}. Maybe User was not found!`, status: false, data: null
               });
             }
             else {
+              if (tokenType === PlaidTokenTypes.TokenAuth) {
+                //get bank data and save 
+                console.log("loading banks");
+                savedData = await getBankDataAndSave(user)
+              }
               res.send({ message: "Access Token Exchanged", status: true, data: savedData });
             }
           })
