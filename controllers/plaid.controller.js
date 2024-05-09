@@ -1370,61 +1370,73 @@ const GetPayrolIncome = async (req, res) => {
 //Liabilities Apis Start Here
 const AddMortgages = async (mortgages, user) => {
   let liabilities = []
-  for (let i = 0; i < mortgages.length; i++) {
-    let item = mortgages[i];
-    item.interest_rate = item.interest_rate.percentage;
-    item.type = item.interest_rate.type;
-    item.city = item.property_address.city;
-    item.street = item.property_address.street;
-    item.region = item.property_address.region;
-    item.country = item.property_address.country;
-    item.postal_code = item.property_address.postal_code;
-    item.UserId = user.id;
-
-    let mortgage = await db.MortgageLoanModel.create(item);
-    if (mortgage) {
-      liabilities.push(mortgage)
-      //console.log("Mortgage created", liabilities.length)
-
-    }
-    else {
-      //console.log("Mortgage not created")
-    }
-
+  if(mortgages === null){
+    return liabilities
   }
+  else{
+    for (let i = 0; i < mortgages.length; i++) {
+      let item = mortgages[i];
+      item.interest_rate = item.interest_rate.percentage;
+      item.type = item.interest_rate.type;
+      item.city = item.property_address.city;
+      item.street = item.property_address.street;
+      item.region = item.property_address.region;
+      item.country = item.property_address.country;
+      item.postal_code = item.property_address.postal_code;
+      item.UserId = user.id;
+  
+      let mortgage = await db.MortgageLoanModel.create(item);
+      if (mortgage) {
+        liabilities.push(mortgage)
+        //console.log("Mortgage created", liabilities.length)
+  
+      }
+      else {
+        //console.log("Mortgage not created")
+      }
+  
+    }
+  }
+  
   return liabilities
 }
 
 const AddStudentLoans = async (studentLoans, user) => {
   let liabilities = []
-  for (let i = 0; i < studentLoans.length; i++) {
-    let item = studentLoans[i];
-    item.loan_status = item.loan_status.type;
-
-    item.pslf_estimated_eligibility_date = item.pslf_status.estimated_eligibility_date;
-    item.pslf_payments_made = item.pslf_status.payments_made;
-    item.pslf_payments_remaining = item.pslf_status.payments_remaining;
-
-    item.repayment_plan = item.repayment_plan.type;
-
-    item.city = item.servicer_address.city;
-    item.street = item.servicer_address.street;
-    item.region = item.servicer_address.region;
-    item.country = item.servicer_address.country;
-    item.postal_code = item.servicer_address.postal_code;
-    item.UserId = user.id;
-
-    let mortgage = await db.StudentLoanModel.create(item);
-    if (mortgage) {
-      liabilities.push(mortgage)
-      //console.log("Student Loan created", liabilities.length)
-
-    }
-    else {
-      //console.log("StudentLoan not created")
-    }
-
+  if(studentLoans === null){
+    return liabilities
   }
+  else{
+    for (let i = 0; i < studentLoans.length; i++) {
+      let item = studentLoans[i];
+      item.loan_status = item.loan_status.type;
+  
+      item.pslf_estimated_eligibility_date = item.pslf_status.estimated_eligibility_date;
+      item.pslf_payments_made = item.pslf_status.payments_made;
+      item.pslf_payments_remaining = item.pslf_status.payments_remaining;
+  
+      item.repayment_plan = item.repayment_plan.type;
+  
+      item.city = item.servicer_address.city;
+      item.street = item.servicer_address.street;
+      item.region = item.servicer_address.region;
+      item.country = item.servicer_address.country;
+      item.postal_code = item.servicer_address.postal_code;
+      item.UserId = user.id;
+  
+      let mortgage = await db.StudentLoanModel.create(item);
+      if (mortgage) {
+        liabilities.push(mortgage)
+        //console.log("Student Loan created", liabilities.length)
+  
+      }
+      else {
+        //console.log("StudentLoan not created")
+      }
+  
+    }
+  }
+  
   return liabilities
 }
 
