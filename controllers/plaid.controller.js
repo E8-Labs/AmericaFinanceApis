@@ -1466,7 +1466,7 @@ const GetLiabilities = async (req, res) => {
             let response = await plaidClient.liabilitiesGet({
               access_token: plaidToken.plaid_access_token,
             });
-            //console.log("Liabilities from plaid", response)
+            console.log("Liabilities from plaid", response)
             // res.send({ status: false, message: error, data: response })
             // return
             response = response.data
@@ -1497,8 +1497,8 @@ const GetLiabilities = async (req, res) => {
 
             // res.send({ status: true, message: "Liabilities", data: response.data })
           } catch (error) {
-            //console.log("Error in catch", error)
-            res.send({ status: false, message: error, data: null })
+            console.log("Error in catch liabi", error)
+            res.send({ status: false, message: error.message, data: error })
           }
         }
         else {
