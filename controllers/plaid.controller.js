@@ -1473,7 +1473,7 @@ const GetLiabilities = async (req, res) => {
             let liabilities = []
             if (response) {
               // save the accounts
-              //console.log("Liabilities ", response.liabilities)
+              console.log("Liabilities ", d.liabilities)
               let mortgages = await AddMortgages(d.liabilities.mortgage, user)
               let studentLoans = await AddStudentLoans(d.liabilities.student, user);
               // let mortgages = await db.MortgageLoanModel.findAll({
