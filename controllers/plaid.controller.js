@@ -178,7 +178,7 @@ const CreateLinkToken = async (req, res) => {
 
             let tokenType = req.body.token_type;//PlaidTokenTypes.TokenAuth;
             console.log("Token Type ", tokenType)
-            let products = ['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity', 'income'];
+            let products = ['auth', 'assets', 'identity', 'liabilities', 'transactions', 'transfer', 'identity']//, 'income'];
             let income_verification_object = null;
             let identity_verification = null
 
