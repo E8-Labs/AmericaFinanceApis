@@ -1466,16 +1466,16 @@ const GetLiabilities = async (req, res) => {
             let response = await plaidClient.liabilitiesGet({
               access_token: plaidToken.plaid_access_token,
             });
-            console.log("Liabilities from plaid", response)
+            console.log("Liabilities from plaid", response.data)
             // res.send({ status: false, message: error, data: response })
             // return
-            response = response.data
+            let d = response.data
             let liabilities = []
             if (response) {
               // save the accounts
               //console.log("Liabilities ", response.liabilities)
-              let mortgages = await AddMortgages(response.liabilities.mortgage, user)
-              let studentLoans = await AddStudentLoans(response.liabilities.student, user);
+              let mortgages = await AddMortgages(d.liabilities.mortgage, user)
+              let studentLoans = await AddStudentLoans(d.liabilities.student, user);
               // let mortgages = await db.MortgageLoanModel.findAll({
               //     where: {
               //         UserId: userid
