@@ -358,7 +358,7 @@ const ExchangePublicToken = async (req, res) => {
 
 async function getBankDataAndSave(user) {
   const accounts = await GetAccountsListUtility(user);
-  //console.log("Usre accounts list", accounts)
+  console.log("Usre accounts list", accounts)
   const savedaccounts = []
   if (accounts) {
     // save the accounts
@@ -382,7 +382,7 @@ async function getBankDataAndSave(user) {
 
       }
       else {
-        //console.log("Account not created")
+        console.log("Account not created")
       }
 
     }
@@ -391,7 +391,7 @@ async function getBankDataAndSave(user) {
         UserId: user.id
       }
     })
-    //console.log("sending back response")
+    console.log("sending back response")
     let list = await UserBanksFullResource(dbaccounts)
     return list
 
