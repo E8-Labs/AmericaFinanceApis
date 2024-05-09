@@ -308,6 +308,7 @@ const ExchangePublicToken = async (req, res) => {
       let userid = authData.user.id;
       console.log("Exchanging token for user " + userid)
       try {
+        let savedData = null;
         const exchangeResponse = await plaidClient.itemPublicTokenExchange({
           public_token: req.body.public_token,
         });
@@ -322,7 +323,7 @@ const ExchangePublicToken = async (req, res) => {
         })
           .then( async data => {
             if (!data) {
-              let savedData = null;
+              
               if (tokenType === PlaidTokenTypes.TokenAuth) {
                 //get bank data and save 
                 console.log("loading banks");
