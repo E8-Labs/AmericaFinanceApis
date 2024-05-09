@@ -306,7 +306,7 @@ const ExchangePublicToken = async (req, res) => {
   JWT.verify(req.token, process.env.SecretJwtKey, async (error, authData) => {
     if (authData) {
       let userid = authData.user.id;
-      //console.log("Exchanging token for user " + userid)
+      console.log("Exchanging token for user " + userid)
       try {
         const exchangeResponse = await plaidClient.itemPublicTokenExchange({
           public_token: req.body.public_token,
@@ -322,16 +322,17 @@ const ExchangePublicToken = async (req, res) => {
         })
           .then( async data => {
             if (!data) {
+              let savedData = null;
               if (tokenType === "Auth") {
                 //get bank data and save 
-                let saved = await getBankDataAndSave(user)
+                savedData = await getBankDataAndSave(user)
               }
               res.send({
                 message: `Cannot update User with id=${userid}. Maybe User was not found!`, status: false, data: null
               });
             }
             else {
-              res.send({ message: "Access Token Exchanged", status: true, data: null });
+              res.send({ message: "Access Token Exchanged", status: true, data: savedData });
             }
           })
           .catch(err => {
