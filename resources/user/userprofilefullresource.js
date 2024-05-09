@@ -35,6 +35,16 @@ async function  getUserData(user, currentUser = null) {
         plaid_token_type: PlaidTokenTypes.TokenAuth
     }});
 
+    let plaidBank = await db.BankAccountModel.findAll({
+        where: {
+            UserId: user.id
+        }
+    })
+    let bank_connected = false;
+    if(plaidBank && plaidBank.length > 0){
+        bank_connected = true;
+    }
+
     let houses = await db.HouseModel.findOne({where: {
         UserId: user.id,
     }});
@@ -84,7 +94,7 @@ async function  getUserData(user, currentUser = null) {
         middlename: user.middlename,
         profile_image: user.profile_image,
         email: user.email,
-        bank_connected: token ? true : false,
+        bank_connected: bank_connected,//token ? true : false,
         houses_connected: houses ? true : false,
         identity_connected: identity_connected,
         liabilities_added: user.liabilities_added,
